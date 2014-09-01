@@ -87,7 +87,7 @@ define(['text!menu/loginMenu.html', 'menu/menuNavigator', 'lib/socket.io'], func
 
         connectSocket: function (token, successCallback, errorCallback)
         {
-            var socket = io('http://127.0.0.1:1988',
+            var socket = io(SERVER_URL,
                 {
                     query: "token=" + token,
                     forceNew: true
