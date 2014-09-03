@@ -8,9 +8,12 @@ define([
         'menu/notificationsMenu',
         'core/src/levelLoader',
         'core/src/plotManager',
-        'renderer/src/renderer'
+        'core/src/scheduler',
+        'core/src/browserNavigation',
+        'core/src/inputHandler',
+        'renderer/src/renderer',
     ],
-    function (Template, MenuNavigator, BattleConfigurationMenu, LoginMenu, PlayerSearchMenu, ActiveGamesMenu, NotificationsMenu, LevelLoader, PlotManager, Renderer)
+    function (Template, MenuNavigator, BattleConfigurationMenu, LoginMenu, PlayerSearchMenu, ActiveGamesMenu, NotificationsMenu, LevelLoader, PlotManager, Scheduler, BrowserNavigation, InputHandler, Renderer)
     {
         function parseFunctions(key, value)
         {
@@ -64,7 +67,21 @@ define([
                     document.body.removeChild(document.body.lastChild);
 
                 var levelData = this.levels[game.level];
+
+                Scheduler.clear();
+                Renderer.initialize();
+                InputHandler.disableInput();
+                BrowserNavigation.on('leaving:singlePlayer', this, this.uninitialize);
+
                 PlotManager.loadLevel(this.socket, this.gameLogic, levelData, game.users);
+            },
+
+            uninitialize: function ()
+            {
+                Scheduler.clear();
+                Renderer.uninitialize();
+                InputHandler.disableInput();
+                BrowserNavigation.off('leaving:singlePlayer', this);
             },
 
             loadGameLogic: function ()

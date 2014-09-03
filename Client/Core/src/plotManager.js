@@ -1,24 +1,17 @@
 define([
         'renderer/src/renderer',
-        './scheduler',
-        './inputHandler',
-        './browserNavigation',
         './turnManager',
         './players/automatedPlayer',
         './players/localPlayer',
         './players/remotePlayer'
     ],
-    function (Renderer, Scheduler, InputHandler, BrowserNavigation, TurnManager, AutomatedPlayer, LocalPlayer, RemotePlayer)
+    function (Renderer, TurnManager, AutomatedPlayer, LocalPlayer, RemotePlayer)
     {
         'use strict';
 
         return {
             loadLevel: function (socket, unitLogic, levelData, users)
             {
-                Scheduler.clear();
-                Renderer.initialize();
-                BrowserNavigation.on('leaving:singlePlayer', this, this.uninitialize);
-
                 this.players = [];
                 this.socket = socket;
                 this.currentMap = levelData.map;
@@ -61,7 +54,6 @@ define([
                     }
                 }
 
-                InputHandler.disableInput();
                 this.beginTurn();
             },
 
@@ -105,14 +97,6 @@ define([
             onPlayerDefeat: function (player)
             {
                 console.log('player ' + player.name + ' defeated');
-            },
-
-            uninitialize: function ()
-            {
-                Scheduler.clear();
-                Renderer.uninitialize();
-                InputHandler.disableInput();
-                BrowserNavigation.off('leaving:singlePlayer', this);
             }
         };
     });
