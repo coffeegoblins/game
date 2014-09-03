@@ -16,6 +16,8 @@ define([
                 this.socket = socket;
                 this.currentMap = levelData.map;
                 this.turnManager = new TurnManager();
+                this.unitActions = [];
+
                 Renderer.addRenderableMap(this.currentMap);
 
                 for (var i = 0; i < levelData.objects.length; i++)
@@ -31,7 +33,8 @@ define([
                     var user = users[i];
                     if (user.username === currentUsername)
                     {
-                        this.players.push(new LocalPlayer(this.socket, unitLogic, this.currentMap, user.units));
+                        this.localPlayer = new LocalPlayer(this.socket, unitLogic, this.currentMap, user.units);
+                        this.players.push(this.localPlayer);
                     }
                     else
                     {
@@ -44,6 +47,8 @@ define([
                     var player = this.players[i];
                     player.on('defeat', this, this.onPlayerDefeat);
                     player.on('endTurn', this, this.endTurn);
+                    player.on('attack', this, this.onLocalUnitAttack);
+                    player.on('move', this, this.onLocalUnitMove);
 
                     for (var j = 0; j < player.units.length; j++)
                     {
@@ -78,15 +83,54 @@ define([
                         }
                     }
                 }
+
+                if (this.unitActions.length > 0 && unit.player !== this.localPlayer)
+                {
+                    // The local player is out of moves
+                    this.socket.emit(this.socket.events.gameStateUpdate.url, this.unitActions);
+
+                    // TODO Clear when successful, check for error
+                    this.unitActions = [];
+                }
             },
 
             endTurn: function ()
             {
+                if (this.turnManager.activeUnit.player === this.localPlayer)
+                {
+                    this.unitActions.push(
+                    {
+                        actionType: "ENDTURN"
+                    });
+                }
+
                 this.turnManager.activeUnit.isSelected = false;
                 this.turnManager.endTurn();
 
                 Renderer.clearRenderablePaths();
                 this.beginTurn();
+            },
+
+            onLocalUnitAttack: function (unit, attack, targetTile, affectedTiles)
+            {
+                this.unitActions.push(
+                {
+                    actionType: "ATTACK",
+                    unit: unit,
+                    attack: attack,
+                    targetTile: targetTile,
+                    affectedTiles: affectedTiles
+                });
+            },
+
+            onLocalUnitMove: function (map, unit, tileNode)
+            {
+                this.unitActions.push(
+                {
+                    actionType: "MOVE",
+                    unit: unit,
+                    tileNode: tileNode
+                });
             },
 
             onCameraMoved: function (unit)

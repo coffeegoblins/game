@@ -135,6 +135,8 @@ define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../
             this.unit.statusPanel.previewAP();
 
             this.performAttack(this.selectedTile, this.selectedTiles, this.currentAttack);
+
+            this.trigger('attack', this.unit, this.currentAttack, this.selectedTile, this.selectedTiles);
         };
 
         LocalPlayer.prototype.onAttackComplete = function ()
@@ -187,6 +189,8 @@ define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../
             //
             //this.socket.emit(this.socket.events.gameStateUpdate.url, update);
             this.moveUnit(this.selectedTiles);
+            var endTileNode = this.selectedTiles[this.selectedTiles.length - 1];
+            this.trigger('move', this.map, this.unit, endTileNode);
         };
 
         LocalPlayer.prototype.onMoveComplete = function ()
