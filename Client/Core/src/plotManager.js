@@ -76,10 +76,10 @@ define([
                     var player = this.players[i];
                     for (var j = 0; j < player.units.length; j++)
                     {
-                        unit = player.units[j];
-                        if (unit.statusPanel)
+                        var currentUnit = player.units[j];
+                        if (currentUnit.statusPanel)
                         {
-                            unit.statusPanel.updateValues();
+                            currentUnit.statusPanel.updateValues();
                         }
                     }
                 }
@@ -100,7 +100,7 @@ define([
                 {
                     this.unitActions.push(
                     {
-                        actionType: "ENDTURN"
+                        type: "ENDTURN"
                     });
                 }
 
@@ -115,21 +115,21 @@ define([
             {
                 this.unitActions.push(
                 {
-                    actionType: "ATTACK",
-                    unit: unit,
+                    type: "ATTACK",
+                    unitID: unit._id,
                     attack: attack,
                     targetTile: targetTile,
                     affectedTiles: affectedTiles
                 });
             },
 
-            onLocalUnitMove: function (map, unit, tileNode)
+            onLocalUnitMove: function (map, unit, endNode)
             {
                 this.unitActions.push(
                 {
-                    actionType: "MOVE",
-                    unit: unit,
-                    tileNode: tileNode
+                    type: "MOVE",
+                    unitID: unit._id,
+                    endNode: endNode
                 });
             },
 

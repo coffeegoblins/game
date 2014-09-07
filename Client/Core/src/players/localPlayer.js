@@ -54,16 +54,16 @@ define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../
             this.actionPanel.hide();
             if (action.name === 'move')
             {
-                this.availableTiles = this.unitLogic.getMoveTiles(this.map, this.unit);
-                Renderer.addRenderablePath('moveTiles', this.availableTiles, false);
+                this.availableNodes = this.unitLogic.getMoveNodes(this.map, this.unit);
+                Renderer.addRenderablePath('moveTiles', this.availableNodes, false);
                 this.map.on('tileClick', this, this.onMoveTileSelected);
             }
             else
             {
                 this.currentAttack = action;
-                this.availableTiles = this.unitLogic.getAttackTiles(this.map, this.unit, this.currentAttack);
+                this.availableNodes = this.unitLogic.getAttackNodes(this.map, this.unit, this.currentAttack);
 
-                Renderer.addRenderablePath('attack', this.availableTiles, false);
+                Renderer.addRenderablePath('attack', this.availableNodes, false);
                 this.map.on('tileClick', this, this.onAttackTileSelected);
             }
 
@@ -95,13 +95,13 @@ define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../
             Renderer.clearRenderablePathById('selectedAttackNodes');
             this.confirmationPanel.target = {tileX: tileX, tileY: tileY};
 
-            this.selectedTile = tile && Utility.getElementByProperty(this.availableTiles, 'tile', tile);
+            this.selectedTile = tile && Utility.getElementByProperty(this.availableNodes, 'tile', tile);
             if (this.selectedTile)
             {
                 this.selectedTiles = [this.selectedTile];
                 if (this.currentAttack.useCrossNodes)
                 {
-                    this.selectedTiles.push.apply(this.selectedTiles, this.unitLogic.calculateCrossNodes(this.unit, this.selectedTile, this.availableTiles));
+                    this.selectedTiles.push.apply(this.selectedTiles, this.unitLogic.calculateCrossNodes(this.unit, this.selectedTile, this.availableNodes));
                 }
 
                 for (var i = 0; i < this.selectedTiles.length; i++)
@@ -150,7 +150,7 @@ define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../
             Renderer.clearRenderablePathById('selectedPath');
             this.confirmationPanel.target = {tileX: tileX, tileY: tileY};
 
-            var pathNode = tile && Utility.getElementByProperty(this.availableTiles, 'tile', tile);
+            var pathNode = tile && Utility.getElementByProperty(this.availableNodes, 'tile', tile);
             if (pathNode)
             {
                 this.selectedTiles = this.unitLogic.calculatePathFromNodes(pathNode, this.unit.tileX, this.unit.tileY);
@@ -228,7 +228,7 @@ define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../
             this.selectedTile = null;
             this.selectedTiles = null;
             this.currentAttack = null;
-            this.availableTiles = null;
+            this.availableNodes = null;
 
             Renderer.clearRenderablePaths();
             this.unit.statusPanel.previewAP();
