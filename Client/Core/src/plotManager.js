@@ -3,17 +3,20 @@ define([
         './turnManager',
         './players/automatedPlayer',
         './players/localPlayer',
-        './players/remotePlayer'
+        './players/remotePlayer',
+        './unitActions'
     ],
-    function (Renderer, TurnManager, AutomatedPlayer, LocalPlayer, RemotePlayer)
+    function (Renderer, TurnManager, AutomatedPlayer, LocalPlayer, RemotePlayer, UnitActions)
     {
         'use strict';
 
         return {
+
             loadLevel: function (socket, unitLogic, levelData, users)
             {
                 this.players = [];
                 this.socket = socket;
+                this.unitLogic = unitLogic;
                 this.currentMap = levelData.map;
                 this.turnManager = new TurnManager();
                 this.unitActions = [];
@@ -141,6 +144,41 @@ define([
             onPlayerDefeat: function (player)
             {
                 console.log('player ' + player.name + ' defeated');
+            },
+
+            onGameStateUpdateReceived: function (actions)
+            {
+                for (var i = 0; i < actions.length; ++i)
+                {
+                    var action = actions[i];
+                    switch (action.type)
+                    {
+
+                    case "move":
+                        {
+                            UnitActions.move(this.unitLogic, action.unit, action.pathNodes);
+                            break;
+                        }
+
+                    case "attack":
+                        {
+                            // TODO
+                            break;
+                        }
+
+                    case "endTurn":
+                        {
+                            // Nothing to validate
+                            break;
+                        }
+
+                    default:
+                        return false;
+
+                    }
+                }
+
+                return true;
             }
         };
     });

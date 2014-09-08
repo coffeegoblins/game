@@ -1,5 +1,5 @@
-define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../inputHandler', './player', 'renderer/src/renderer', '../utility'],
-    function (ActionPanel, ConfirmationPanel, InputHandler, Player, Renderer, Utility)
+define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../inputHandler', './player', 'renderer/src/renderer', '../utility', '../unitActions'],
+    function (ActionPanel, ConfirmationPanel, InputHandler, Player, Renderer, Utility, UnitActions)
     {
         'use strict';
         function LocalPlayer()
@@ -188,7 +188,8 @@ define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../
             //}
             //
             //this.socket.emit(this.socket.events.gameStateUpdate.url, update);
-            this.moveUnit(this.selectedTiles);
+            UnitActions.moveUnit(this.unitLogic, this.unit, this.selectedTiles);
+
             var endTileNode = this.selectedTiles[this.selectedTiles.length - 1];
             this.trigger('move', this.map, this.unit, endTileNode);
         };

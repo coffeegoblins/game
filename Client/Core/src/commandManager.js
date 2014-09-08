@@ -3,7 +3,8 @@ define(['renderer/src/renderer', 'core/src/plotManager', 'core/src/soundManager'
     {
         'use strict';
 
-        function CommandManager() { }
+        function CommandManager()
+        {}
 
         CommandManager.endTurn = function ()
         {
@@ -40,10 +41,20 @@ define(['renderer/src/renderer', 'core/src/plotManager', 'core/src/soundManager'
             PlotManager.turnManager.activeUnit.setDirection(x, y);
         };
 
-//        CommandManager.addNotification = function (notification)
-//        {
-//            Notifications.addNotification(notification);
-//        };
+        CommandManager.updateGameState = function (actions)
+        {
+            PlotManager.onGameStateUpdateReceived(actions);
+        };
+
+        CommandManager.getUnits = function ()
+        {
+            console.log(PlotManager.turnManager.unitList);
+        };
+
+        //        CommandManager.addNotification = function (notification)
+        //        {
+        //            Notifications.addNotification(notification);
+        //        };
 
         window.CommandManager = CommandManager;
         return CommandManager;
