@@ -4,7 +4,7 @@ define(['renderer/src/renderer', './scheduler'],
         'use strict';
 
         return {
-            move: function (unitLogic, unit, pathNodes)
+            move: function (unitLogic, map, unit, pathNodes)
             {
                 unit.setState('run');
                 Renderer.camera.trackUnit(unit);
@@ -13,7 +13,7 @@ define(['renderer/src/renderer', './scheduler'],
                     unit.statusPanel.apBar.disableTransitions();
 
                 var endTileNode = pathNodes[pathNodes.length - 1];
-                var cost = unitLogic.beginMoveUnit(this.map, unit, endTileNode);
+                var cost = unitLogic.beginMoveUnit(map, unit, endTileNode);
 
                 var startAp = unit.ap;
                 var endAp = unit.ap - cost;

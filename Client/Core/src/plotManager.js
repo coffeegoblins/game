@@ -156,7 +156,7 @@ define([
 
                     case "move":
                         {
-                            UnitActions.move(this.unitLogic, action.unit, action.pathNodes);
+                            UnitActions.move(this.unitLogic, this.currentMap, action.unit, action.pathNodes);
                             break;
                         }
 
