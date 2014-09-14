@@ -47,7 +47,7 @@ define(['./map', './worldObject'], function (Map, WorldObject)
         }
 
         var data = {
-            map: new Map(width, height),
+            map: new Map(levelData.prototypes.tiles, levelData.boundaries),
             objects: [],
             player1Positions: [],
             player2Positions: []
@@ -65,7 +65,6 @@ define(['./map', './worldObject'], function (Map, WorldObject)
             {
                 data.map.spriteSheet = layer.spriteSheet;
                 data.map.collisionTiles = this.collisionTiles[layer.spriteSheet];
-                this.loadTiles(layer, data.map, 'spriteIndex');
             }
             else if (layerName === 'heights')
             {

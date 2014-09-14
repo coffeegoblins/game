@@ -81,7 +81,7 @@ define(['renderer/src/renderer', './scheduler'],
                         }
 
                         Renderer.camera.trackUnit();
-                        this.onMoveComplete();
+                        // TODO this.onMoveComplete();
                     }
                 });
             }

@@ -4,15 +4,16 @@ define([
         './players/automatedPlayer',
         './players/localPlayer',
         './players/remotePlayer',
-        './unitActions'
+        './unitActions',
+        './map'
     ],
-    function (Renderer, TurnManager, AutomatedPlayer, LocalPlayer, RemotePlayer, UnitActions)
+    function (Renderer, TurnManager, AutomatedPlayer, LocalPlayer, RemotePlayer, UnitActions, Map)
     {
         'use strict';
 
         return {
 
-            loadLevel: function (socket, unitLogic, levelData, users)
+            loadGame: function (socket, unitLogic, game, levelData)
             {
                 this.players = [];
                 this.socket = socket;
@@ -23,25 +24,22 @@ define([
 
                 Renderer.addRenderableMap(this.currentMap);
 
-                for (var i = 0; i < levelData.objects.length; i++)
-                {
-                    var obj = levelData.objects[i];
-                    levelData.map.addObject(obj, obj.x, obj.y);
-                    Renderer.addRenderableObject(obj);
-                }
+                // TODO Fix
+                var localUnits = game.units.splice(0, 4);
+                var remoteUnits = game.units.splice(0, 4);
 
                 var currentUsername = this.socket.user.username;
-                for (i = 0; i < users.length; i++)
+                for (var i = 0; i < game.usernames.length; i++)
                 {
-                    var user = users[i];
-                    if (user.username === currentUsername)
+                    var username = game.usernames[i];
+                    if (username === currentUsername)
                     {
-                        this.localPlayer = new LocalPlayer(this.socket, unitLogic, this.currentMap, user.units);
+                        this.localPlayer = new LocalPlayer(this.socket, unitLogic, this.currentMap, localUnits);
                         this.players.push(this.localPlayer);
                     }
                     else
                     {
-                        this.players.push(new RemotePlayer(this.socket, unitLogic, this.currentMap, user.units));
+                        this.players.push(new RemotePlayer(this.socket, unitLogic, this.currentMap, remoteUnits));
                     }
                 }
 
@@ -58,20 +56,19 @@ define([
                         var unit = player.units[j];
                         this.turnManager.addUnit(unit);
                         Renderer.addRenderableSoldier(unit);
-                        this.currentMap.addUnit(unit, unit.tileX, unit.tileY);
                     }
                 }
 
-                this.beginTurn();
+                this.beginTurn(this.onCameraMoved.bind(this));
             },
 
-            beginTurn: function ()
+            beginTurn: function (callback)
             {
                 this.turnManager.beginTurn();
 
                 var unit = this.turnManager.activeUnit;
                 unit.isSelected = true;
-                Renderer.camera.moveToUnit(unit, this.onCameraMoved.bind(this));
+                Renderer.camera.moveToUnit(unit, callback);
 
                 // Update all the turn numbers
                 for (var i = 0; i < this.players.length; i++)
@@ -111,7 +108,7 @@ define([
                 this.turnManager.endTurn();
 
                 Renderer.clearRenderablePaths();
-                this.beginTurn();
+                this.beginTurn(this.onCameraMoved.bind(this));
             },
 
             onLocalUnitAttack: function (unit, attack, targetTile, affectedTiles)
@@ -148,37 +145,47 @@ define([
 
             onGameStateUpdateReceived: function (actions)
             {
-                for (var i = 0; i < actions.length; ++i)
+                this.performActions(actions);
+            },
+
+            performActions: function (actions)
+            {
+                var action = actions.shift();
+                switch (action.type)
                 {
-                    var action = actions[i];
-                    switch (action.type)
+
+                case "move":
                     {
-
-                    case "move":
-                        {
-                            UnitActions.move(this.unitLogic, this.currentMap, action.unit, action.pathNodes);
-                            break;
-                        }
-
-                    case "attack":
-                        {
-                            // TODO
-                            break;
-                        }
-
-                    case "endTurn":
-                        {
-                            // Nothing to validate
-                            break;
-                        }
-
-                    default:
-                        return false;
-
+                        UnitActions.move(this.unitLogic, this.currentMap, action.unit, action.pathNodes);
+                        break;
                     }
-                }
 
-                return true;
+                case "attack":
+                    {
+                        // TODO
+                        break;
+                    }
+
+                case "endTurn":
+                    {
+                        // Nothing to validate
+                        this.endTurn();
+
+                        if (actions.length === 0)
+                        {
+                            this.beginTurn(this.onCameraMoved.bind(this));
+                            return;
+                        }
+                        this.beginTurn(this.performActions.bind(this, actions));
+
+                        break;
+                    }
+
+                default:
+                    // TODO Handle out of date error
+                    return;
+
+                }
             }
         };
     });

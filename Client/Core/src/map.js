@@ -3,17 +3,11 @@ define(['./events'], function (Events)
     'use strict';
 
 
-    function Map(width, height)
+    function Map(tiles, boundaries)
     {
-        this.tiles = [];
-        this.width = width;
-        this.height = height;
-
-        for (var y = 0; y < height; y++)
-        {
-            for (var x = 0; x < width; x++)
-                this.tiles.push({height: 0});
-        }
+        this.tiles = tiles;
+        this.width = boundaries.width;
+        this.height = boundaries.height;
     }
 
     Map.prototype.addObject = function (object, x, y)

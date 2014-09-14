@@ -8,7 +8,8 @@ define(['text!./battleConfigurationMenu.html', 'core/src/events', 'core/src/leve
         this.levels = {
             level1: {minUnits: 4, maxUnits: 4},
             level2: {minUnits: 4, maxUnits: 4},
-            level3: {minUnits: 4, maxUnits: 4}
+            level3: {minUnits: 4, maxUnits: 4},
+            level4: {minUnits: 4, maxUnits: 4}
         };
 
         var battleConfig = window.localStorage.getItem('battleConfig');

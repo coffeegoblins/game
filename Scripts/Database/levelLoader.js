@@ -1,4 +1,4 @@
-var SERVER_ROOT = '../../Server';
+var SERVER_ROOT = 'D:/Game Server/';
 
 var databaseManager = require(SERVER_ROOT + '/databaseManager');
 var fileSystem = require('fs');
@@ -16,12 +16,7 @@ function loadLevel(levelName, error, data)
     }
 
     var jsonData = JSON.parse(data);
-    databaseManager.levelsCollection.insert(
-    {
-        name: levelName,
-        data: jsonData,
-        active: true
-    }, function (error)
+    databaseManager.levelsCollection.insert(jsonData, function (error)
     {
         if (error)
         {
@@ -33,7 +28,7 @@ function loadLevel(levelName, error, data)
     });
 }
 
-databaseManager.open(config.dbName, config.dbHost, config.dbPort, function ()
+databaseManager.open(config.dbName, config.dbHost, config.dbPort, "", "", function ()
 {
     // Intentionally skip first two arguments: "node", "levelLoader.js"
     for (var i = 2; i < process.argv.length; ++i)

@@ -11,14 +11,12 @@ define(['./player'], function (Player)
 
     RemotePlayer.prototype.performTurn = function (unit)
     {
-        Player.prototype.performTurn.call(this, unit);
 
-        this.endTurn();
     };
 
     RemotePlayer.prototype.endTurn = function ()
     {
-        Player.prototype.endTurn.call(this);
+
     };
 
     RemotePlayer.prototype.onAttackComplete = function ()

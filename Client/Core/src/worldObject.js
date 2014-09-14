@@ -9,6 +9,7 @@ define(['./utility'], function (Utility)
         if (this.size === 'large')
         {
             this.sizeX = 2;
+
             this.sizeY = 2;
         }
         else

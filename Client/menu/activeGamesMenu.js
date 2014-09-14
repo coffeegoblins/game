@@ -18,12 +18,12 @@ define(['text!menu/activeGamesMenu.html', 'menu/menuNavigator', 'core/src/imageC
                 for (var i = 0; i < games.length; ++i)
                 {
                     var currentGame = games[i];
-                    for (var j = 0; j < currentGame.users.length; ++j)
+                    for (var j = 0; j < currentGame.usernames.length; ++j)
                     {
-                        var user = currentGame.waitingOn[j];
-                        if (user.username !== this.socket.user.username)
+                        var username = currentGame.usernames[j];
+                        if (username !== this.socket.user.username)
                         {
-                            currentGame.opponentUser = user;
+                            currentGame.opponentUser = username;
                         }
                     }
 
@@ -48,7 +48,7 @@ define(['text!menu/activeGamesMenu.html', 'menu/menuNavigator', 'core/src/imageC
             {
                 for (var i = 0; i < game.waitingOn.length; ++i)
                 {
-                    if (game.waitingOn[i].username === this.socket.user.username)
+                    if (game.waitingOn[i] === this.socket.user.username)
                     {
                         return true;
                     }
