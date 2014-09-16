@@ -5,9 +5,10 @@ define([
         './players/localPlayer',
         './players/remotePlayer',
         './unitActions',
-        './map'
+        './map',
+        './soldier'
     ],
-    function (Renderer, TurnManager, AutomatedPlayer, LocalPlayer, RemotePlayer, UnitActions, Map)
+    function (Renderer, TurnManager, AutomatedPlayer, LocalPlayer, RemotePlayer, UnitActions, Map, Soldier)
     {
         'use strict';
 
@@ -18,6 +19,7 @@ define([
                 this.players = [];
                 this.socket = socket;
                 this.unitLogic = unitLogic;
+                this.currentGame = game;
                 this.currentMap = levelData.map;
                 this.turnManager = new TurnManager();
                 this.unitActions = [];
@@ -25,11 +27,29 @@ define([
                 Renderer.addRenderableMap(this.currentMap);
 
                 // TODO Fix
-                var localUnits = game.units.splice(0, 4);
-                var remoteUnits = game.units.splice(0, 4);
-
                 var currentUsername = this.socket.user.username;
-                for (var i = 0; i < game.usernames.length; i++)
+                var localUnits = [];
+                var remoteUnits = [];
+                for (var i = 0; i < game.units.length; ++i)
+                {
+                    var unit = new Soldier(game.units[i]);
+
+                    if (unit.username === this.socket.user.username)
+                    {
+                        localUnits.push(unit);
+                    }
+                    else
+                    {
+                        remoteUnits.push(unit);
+                    }
+
+                    //unit.on('death', this.onSoldierDeath.bind(this));
+                    //this.openUnitStatusPanel(unit);
+                    this.turnManager.addUnit(unit);
+                    Renderer.addRenderableSoldier(unit);
+                }
+
+                for (i = 0; i < game.usernames.length; i++)
                 {
                     var username = game.usernames[i];
                     if (username === currentUsername)
@@ -50,13 +70,6 @@ define([
                     player.on('endTurn', this, this.endTurn);
                     player.on('attack', this, this.onLocalUnitAttack);
                     player.on('move', this, this.onLocalUnitMove);
-
-                    for (var j = 0; j < player.units.length; j++)
-                    {
-                        var unit = player.units[j];
-                        this.turnManager.addUnit(unit);
-                        Renderer.addRenderableSoldier(unit);
-                    }
                 }
 
                 this.beginTurn(this.onCameraMoved.bind(this));
@@ -87,10 +100,10 @@ define([
                 if (this.unitActions.length > 0 && unit.player !== this.localPlayer)
                 {
                     // The local player is out of moves
-                    this.socket.emit(this.socket.events.gameStateUpdate.url, this.unitActions);
+                    this.socket.emit(this.socket.events.gameStateUpdate.url, this.currentGame._id, this.unitActions);
 
                     // TODO Clear when successful, check for error
-                    this.unitActions = [];
+                    // this.unitActions = [];
                 }
             },
 
@@ -154,19 +167,19 @@ define([
                 switch (action.type)
                 {
 
-                case "move":
+                case "MOVE":
                     {
                         UnitActions.move(this.unitLogic, this.currentMap, action.unit, action.pathNodes);
                         break;
                     }
 
-                case "attack":
+                case "ATTACK":
                     {
                         // TODO
                         break;
                     }
 
-                case "endTurn":
+                case "ENDTURN":
                     {
                         // Nothing to validate
                         this.endTurn();

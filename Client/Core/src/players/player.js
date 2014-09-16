@@ -14,14 +14,13 @@ define(['../events', '../options', 'renderer/src/renderer', '../scheduler', '../
             this.socket = socket;
             this.unitLogic = unitLogic;
 
-            this.units = [];
+            this.units = units;
             for (var i = 0; i < units.length; i++)
             {
-                var unit = new Soldier(units[i]);
+                var unit = units[i];
                 unit.player = this;
                 unit.on('death', this.onSoldierDeath.bind(this));
                 this.openUnitStatusPanel(unit);
-                this.units.push(unit);
             }
         }
 
@@ -56,7 +55,7 @@ define(['../events', '../options', 'renderer/src/renderer', '../scheduler', '../
             var options = {};
             options.showTurnIndicator = getOption('showTurnIndicator', isSelection);
 
-            if (unit.player.isLocal)
+            if (unit.username === this.socket.user.username)
             {
                 options.showHP = getOption('showTeamHP', isSelection);
                 options.showAP = getOption('showTeamAP', isSelection);
@@ -166,7 +165,7 @@ define(['../events', '../options', 'renderer/src/renderer', '../scheduler', '../
 
             if (!unit.statusPanel)
             {
-                unit.statusPanel = new UnitStatusPanel();
+                unit.statusPanel = new UnitStatusPanel(this.socket.user.username);
                 unit.statusPanel.open(unit);
             }
 

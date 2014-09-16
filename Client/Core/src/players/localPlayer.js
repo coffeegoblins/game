@@ -188,7 +188,7 @@ define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../
             //}
             //
             //this.socket.emit(this.socket.events.gameStateUpdate.url, update);
-            UnitActions.moveUnit(this.unitLogic, this.unit, this.selectedTiles);
+            UnitActions.move(this.unitLogic, this.map, this.unit, this.selectedTiles, this.onMoveComplete.bind(this));
 
             var endTileNode = this.selectedTiles[this.selectedTiles.length - 1];
             this.trigger('move', this.map, this.unit, endTileNode);

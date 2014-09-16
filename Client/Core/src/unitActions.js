@@ -4,7 +4,7 @@ define(['renderer/src/renderer', './scheduler'],
         'use strict';
 
         return {
-            move: function (unitLogic, map, unit, pathNodes)
+            move: function (unitLogic, map, unit, pathNodes, onMoveComplete)
             {
                 unit.setState('run');
                 Renderer.camera.trackUnit(unit);
@@ -81,7 +81,7 @@ define(['renderer/src/renderer', './scheduler'],
                         }
 
                         Renderer.camera.trackUnit();
-                        // TODO this.onMoveComplete();
+                        onMoveComplete();
                     }
                 });
             }

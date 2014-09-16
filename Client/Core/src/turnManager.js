@@ -11,8 +11,7 @@ define(function ()
     TurnManager.prototype.addUnit = function (unit)
     {
         this.unitList.push(unit);
-        unit.turnNumber = this.unitList.length;
-        unit.on('death', this, this.removeUnit);
+        // unit.on('death', this, this.removeUnit);
     };
 
     TurnManager.prototype.beginTurn = function ()

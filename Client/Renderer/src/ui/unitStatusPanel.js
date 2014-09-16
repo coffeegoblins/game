@@ -1,8 +1,9 @@
 define(['./floatingPanel', 'renderer/src/ui/renderableProgressBar', 'text!../../content/templates/unitStatusPanel.html'], function (FloatingPanel, RenderableProgressBar, Template)
 {
     'use strict';
-    function UnitStatusPanel()
+    function UnitStatusPanel(localUsername)
     {
+        this.localUsername = localUsername;
         FloatingPanel.call(this);
 
         this.element.innerHTML = Template;
@@ -26,7 +27,7 @@ define(['./floatingPanel', 'renderer/src/ui/renderableProgressBar', 'text!../../
         FloatingPanel.prototype.open.apply(this, arguments);
         this.updateValues();
 
-        if (this.target.player.isLocal)
+        if (this.target.username === this.localUsername)
             this.element.classList.add('local');
         else
             this.element.classList.remove('local');

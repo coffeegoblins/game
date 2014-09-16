@@ -4,9 +4,10 @@ define(['core/src/imageCache', 'core/src/spriteSheet', 'text!../content/animatio
 
     var animations = JSON.parse(AnimationDefinitions);
 
-    function RenderableSoldier(unit)
+    function RenderableSoldier(unit, localUsername)
     {
         this.unit = unit;
+        this.localUsername = localUsername;
         this.style = {opacity: 1};
 
         this.createSpriteSheets(this.unit.type);
@@ -136,7 +137,7 @@ define(['core/src/imageCache', 'core/src/spriteSheet', 'text!../content/animatio
         drawEllipse(context, tileLeft, tileTop, tileWidth, tileHeight);
 
         context.lineWidth = 1;
-        if (this.unit.player.isLocal)
+        if (this.unit.username === this.localUsername)
         {
             context.fillStyle = 'rgba(0, 219, 48, 0.3)';
             context.strokeStyle = 'rgba(28, 105, 0, 0.5)';
