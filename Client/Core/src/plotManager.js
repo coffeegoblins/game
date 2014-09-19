@@ -6,9 +6,12 @@ define([
         './players/remotePlayer',
         './unitActions',
         './map',
-        './soldier'
+        './soldier',
+        'renderer/src/ui/actionPanel',
+        'renderer/src/ui/confirmationPanel'
     ],
-    function (Renderer, TurnManager, AutomatedPlayer, LocalPlayer, RemotePlayer, UnitActions, Map, Soldier)
+    function (Renderer, TurnManager, AutomatedPlayer, LocalPlayer, RemotePlayer, UnitActions,
+        Map, Soldier, ActionPanel, ConfirmationPanel)
     {
         'use strict';
 
@@ -23,6 +26,13 @@ define([
                 this.currentMap = levelData.map;
                 this.turnManager = new TurnManager();
                 this.unitActions = [];
+                this.actionPanel = new ActionPanel();
+                this.actionPanel.on('actionSelected', this, this.onActionSelected);
+
+                this.socket.on(this.socket.events.gameStateUpdate.response.success, function ()
+                {
+                    this.unitActions = [];
+                }.bind(this));
 
                 Renderer.addRenderableMap(this.currentMap);
 
@@ -88,24 +98,53 @@ define([
                 {
                     // The local player is out of moves
                     this.socket.emit(this.socket.events.gameStateUpdate.url, this.currentGame._id, this.unitActions);
-
-                    // TODO Clear when successful, check for error
-                    // this.unitActions = [];
                 }
             },
 
             onCameraMoved: function (unit)
             {
-                if (unit.isLocal)
+                if (!unit.isLocal)
                 {
-                    unit.player.performTurn(unit);
+                    return;
                 }
+
+                this.actionPanel.open(unit, this.unitLogic.getAttacks(unit));
             },
 
+            onActionSelected: function (action)
+            {
+                Renderer.clearRenderablePaths();
+                this.actionPanel.hide();
+
+                if (action.name === 'endTurn')
+                {
+                    this.endTurn();
+                    return;
+                }
+
+                if (action.name === 'move')
+                {
+                    this.availableNodes = this.unitLogic.getMoveNodes(this.map, this.unit);
+                    Renderer.addRenderablePath('moveTiles', this.availableNodes, false);
+                    this.map.on('tileClick', this, this.onMoveTileSelected);
+                }
+                else
+                {
+                    this.currentAttack = action;
+                    this.availableNodes = this.unitLogic.getAttackNodes(this.map, this.unit, this.currentAttack);
+
+                    Renderer.addRenderablePath('attack', this.availableNodes, false);
+                    this.map.on('tileClick', this, this.onAttackTileSelected);
+                }
+
+                this.confirmationPanel = new ConfirmationPanel();
+                this.confirmationPanel.on('actionSelected', this, this.onPerformActionSelected);
+                this.confirmationPanel.open(this.unit);
+            },
 
             endTurn: function ()
             {
-                if (this.turnManager.activeUnit.player === this.localPlayer)
+                if (this.turnManager.activeUnit.username === this.socket.user.username)
                 {
                     this.unitActions.push(
                     {
