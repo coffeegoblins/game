@@ -3,10 +3,14 @@ define(['./events'], function (Events)
     'use strict';
 
     var currentStateName = 'root';
-    var historyMap = {root: history.length};
-    history.replaceState({source: currentStateName});
+    var historyMap = {
+        root: history.length
+    };
+    // TODO Fix
+    //history.replaceState({source: currentStateName});
 
-    function BrowserNavigation() { }
+    function BrowserNavigation()
+    {}
 
     window.addEventListener('beforeunload', function (e)
     {
@@ -34,7 +38,10 @@ define(['./events'], function (Events)
     {
         BrowserNavigation.trigger('leaving:' + currentStateName);
 
-        var newState = {source: stateName, data: data};
+        var newState = {
+            source: stateName,
+            data: data
+        };
         if (replaceCurrent)
         {
             history.replaceState(newState);

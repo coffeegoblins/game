@@ -33,6 +33,7 @@ define([
                 for (var i = 0; i < game.units.length; ++i)
                 {
                     var unit = new Soldier(game.units[i]);
+                    unit.isLocal = game.units[i].username === currentUsername;
 
                     if (unit.username === this.socket.user.username)
                     {
@@ -80,22 +81,8 @@ define([
                 this.turnManager.beginTurn();
 
                 var unit = this.turnManager.activeUnit;
-                unit.isSelected = true;
-                Renderer.camera.moveToUnit(unit, callback);
 
-                // Update all the turn numbers
-                for (var i = 0; i < this.players.length; i++)
-                {
-                    var player = this.players[i];
-                    for (var j = 0; j < player.units.length; j++)
-                    {
-                        var currentUnit = player.units[j];
-                        if (currentUnit.statusPanel)
-                        {
-                            currentUnit.statusPanel.updateValues();
-                        }
-                    }
-                }
+                Renderer.camera.moveToUnit(this.turnManager.activeUnit, callback);
 
                 if (this.unitActions.length > 0 && unit.player !== this.localPlayer)
                 {
@@ -107,6 +94,15 @@ define([
                 }
             },
 
+            onCameraMoved: function (unit)
+            {
+                if (unit.isLocal)
+                {
+                    unit.player.performTurn(unit);
+                }
+            },
+
+
             endTurn: function ()
             {
                 if (this.turnManager.activeUnit.player === this.localPlayer)
@@ -117,7 +113,6 @@ define([
                     });
                 }
 
-                this.turnManager.activeUnit.isSelected = false;
                 this.turnManager.endTurn();
 
                 Renderer.clearRenderablePaths();
@@ -145,12 +140,6 @@ define([
                     endNode: endNode
                 });
             },
-
-            onCameraMoved: function (unit)
-            {
-                unit.player.performTurn(unit);
-            },
-
             onPlayerDefeat: function (player)
             {
                 console.log('player ' + player.name + ' defeated');

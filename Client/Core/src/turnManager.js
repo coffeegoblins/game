@@ -17,6 +17,7 @@ define(function ()
     TurnManager.prototype.beginTurn = function ()
     {
         this.activeUnit = this.unitList[0];
+        this.activeUnit.isSelected = true;
     };
 
     TurnManager.prototype.incrementAP = function ()
@@ -65,6 +66,7 @@ define(function ()
             }
         }
 
+        this.activeUnit.isSelected = false;
         this.activeUnit = null;
         this.updateTurnNumbers();
     };
@@ -81,7 +83,10 @@ define(function ()
     TurnManager.prototype.updateTurnNumbers = function ()
     {
         for (var i = 0; i < this.unitList.length; i++)
+        {
             this.unitList[i].turnNumber = i + 1;
+            this.unitList[i].statusPanel.updateValues();
+        }
     };
 
     return TurnManager;

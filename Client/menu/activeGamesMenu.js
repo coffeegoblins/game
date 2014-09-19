@@ -74,7 +74,7 @@ define(['text!menu/activeGamesMenu.html', 'menu/menuNavigator', 'core/src/imageC
                     ImageCache.bindImage(game.level, levelImage);
 
                     levelNameCell.appendChild(levelImage);
-                    opponentCell.innerHTML = game.opponentUser.username;
+                    opponentCell.innerHTML = game.opponentUser;
 
                     fragment.appendChild(row);
                 }
