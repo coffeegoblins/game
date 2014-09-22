@@ -10,8 +10,14 @@ define(['./floatingPanel'], function (FloatingPanel)
         this.element.on('click', '.action', this.onActionClick.bind(this));
 
         this.actions = [
-            {name: 'move', displayName: 'Move'},
-            {name: 'endTurn', displayName: 'End Turn'}
+            {
+                name: 'move',
+                displayName: 'Move'
+            },
+            {
+                name: 'endTurn',
+                displayName: 'End Turn'
+            }
         ];
 
         for (var i = 0; i < 5; i++)
@@ -39,7 +45,7 @@ define(['./floatingPanel'], function (FloatingPanel)
                     var action = this.actions[i];
                     if (action.name === actionName)
                     {
-                        this.trigger('actionSelected', action);
+                        this.trigger('actionSelected', this.target, action);
                         break;
                     }
                 }

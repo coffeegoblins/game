@@ -70,83 +70,6 @@ define(['../events', '../options', 'renderer/src/renderer', '../scheduler', '../
                 return options;
         };
 
-        Player.prototype.moveUnit = function (tiles)
-        {
-            this.unit.setState('run');
-            Renderer.camera.trackUnit(this.unit);
-
-            if (this.unit.statusPanel)
-                this.unit.statusPanel.apBar.disableTransitions();
-
-            var endTileNode = tiles[tiles.length - 1];
-            var cost = this.unitLogic.beginMoveUnit(this.map, this.unit, endTileNode);
-
-            var startAp = this.unit.ap;
-            var endAp = this.unit.ap - cost;
-
-            var path = tiles.slice();
-            path.unshift({x: this.unit.tileX, y: this.unit.tileY});
-
-            var progressTime = 0;
-            var progressPercentage = 0;
-            var totalTime = endTileNode.distance / 3.5;
-
-            for (var i = 1; i < path.length; i++)
-            {
-                var node = path[i];
-                node.startPercentage = progressPercentage;
-                node.endPercentage = node.distance / endTileNode.distance;
-                node.percentageShare = node.endPercentage - node.startPercentage;
-                progressPercentage = node.endPercentage;
-            }
-
-            var currentNode = path.shift();
-            var nextNode = path.shift();
-
-            Scheduler.schedule({
-                context: this,
-                endTime: totalTime,
-                method: function (e, deltaTime)
-                {
-                    progressTime += deltaTime;
-                    var progressPercentage = progressTime / totalTime;
-                    while (progressPercentage > nextNode.endPercentage)
-                    {
-                        currentNode = nextNode;
-                        nextNode = path.shift();
-                    }
-
-                    var deltaX = nextNode.x - currentNode.x;
-                    var deltaY = nextNode.y - currentNode.y;
-                    this.unit.setDirection(deltaX, deltaY);
-
-                    var nodeProgressPercentage = (progressPercentage - nextNode.startPercentage) / nextNode.percentageShare;
-                    this.unit.tileX = currentNode.x + (deltaX * nodeProgressPercentage);
-                    this.unit.tileY = currentNode.y + (deltaY * nodeProgressPercentage);
-
-                    this.unit.ap = startAp + (endAp - startAp) * progressPercentage;
-                    if (this.unit.statusPanel)
-                    {
-                        this.unit.statusPanel.updateValues();
-                    }
-                },
-                completedMethod: function ()
-                {
-                    this.unit.setState('idle');
-                    this.unitLogic.endMoveUnit(this.unit, endTileNode, cost);
-
-                    if (this.unit.statusPanel)
-                    {
-                        this.unit.statusPanel.apBar.enableTransitions();
-                        this.unit.statusPanel.updateValues();
-                    }
-
-                    Renderer.camera.trackUnit();
-                    this.onMoveComplete();
-                }
-            });
-        };
-
         Player.prototype.onSoldierDeath = function (unit)
         {
             this.unitLogic.breakCombatLock(unit);
@@ -170,44 +93,6 @@ define(['../events', '../options', 'renderer/src/renderer', '../scheduler', '../
             }
 
             unit.statusPanel.setOptions(options);
-        };
-
-        Player.prototype.performAttack = function (targetTile, affectedTiles, attack)
-        {
-            var results = this.unitLogic.performAttack(this.unit, attack, targetTile, affectedTiles);
-            for (var i = 0; i < results.length; i++)
-            {
-                var result = results[i];
-                if (!result.damage)
-                {
-                    result.unit.setState('evade');
-                    result.unit.on('animationComplete', function onAnimationComplete()
-                    {
-                        this.setState('idle');
-                        this.off('animationComplete', onAnimationComplete);
-                    });
-                }
-            }
-
-            this.unit.setState('attack');
-            SoundManager.playTrack(attack.track);
-
-            if (this.unit.statusPanel)
-                this.unit.statusPanel.updateValues();
-
-            this.unit.on('animationComplete', this, function onAttackFinished()
-            {
-                for (var i = 0; i < results.length; i++)
-                {
-                    var result = results[i];
-                    if (result.damage && result.unit.statusPanel)
-                        result.unit.statusPanel.updateValues();
-                }
-
-                this.unit.setState('idle');
-                this.unit.off('animationComplete', this, onAttackFinished);
-                this.onAttackComplete();
-            });
         };
 
         Player.prototype.performTurn = function (unit)
