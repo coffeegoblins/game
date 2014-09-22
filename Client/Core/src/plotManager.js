@@ -1,21 +1,26 @@
 define([
         'renderer/src/renderer',
         './turnManager',
-        './players/automatedPlayer',
-        './players/localPlayer',
-        './players/remotePlayer',
         './unitActions',
         './map',
         './soldier',
         'renderer/src/ui/actionPanel',
         'renderer/src/ui/confirmationPanel',
         './utility',
-        './inputHandler'
+        './inputHandler',
+        'renderer/src/ui/unitStatusPanel',
+        './options'
     ],
-    function (Renderer, TurnManager, AutomatedPlayer, LocalPlayer, RemotePlayer, UnitActions,
-        Map, Soldier, ActionPanel, ConfirmationPanel, Utility, InputHandler)
+    function (Renderer, TurnManager, UnitActions,
+        Map, Soldier, ActionPanel, ConfirmationPanel, Utility, InputHandler, UnitStatusPanel,
+        Options)
     {
         'use strict';
+
+        function getOption(key, isSelection)
+        {
+            return Options[key] === 'always' || (isSelection && Options[key] === 'selected');
+        }
 
         return {
 
@@ -23,7 +28,6 @@ define([
             {
                 InputHandler.enableInput();
 
-                this.players = [];
                 this.socket = socket;
                 this.unitLogic = unitLogic;
                 this.currentGame = game;
@@ -41,54 +45,39 @@ define([
 
                 Renderer.addRenderableMap(this.currentMap);
 
-                // TODO Fix
-                var currentUsername = this.socket.user.username;
-                var localUnits = [];
-                var remoteUnits = [];
                 for (var i = 0; i < game.units.length; ++i)
                 {
                     var unit = new Soldier(game.units[i]);
-                    unit.isLocal = game.units[i].username === currentUsername;
-
-                    if (unit.username === this.socket.user.username)
-                    {
-                        localUnits.push(unit);
-                    }
-                    else
-                    {
-                        remoteUnits.push(unit);
-                    }
-
+                    unit.isLocal = (game.units[i].username === this.socket.user.username);
+                    unit.statusPanel = new UnitStatusPanel(this.socket.user.username);
+                    unit.statusPanel.open(unit);
                     //unit.on('death', this.onSoldierDeath.bind(this));
-                    //this.openUnitStatusPanel(unit);
+
                     this.turnManager.addUnit(unit);
                     Renderer.addRenderableSoldier(unit);
                 }
 
-                for (i = 0; i < game.usernames.length; i++)
-                {
-                    var username = game.usernames[i];
-                    if (username === currentUsername)
-                    {
-                        this.localPlayer = new LocalPlayer(this.socket, unitLogic, this.currentMap, localUnits);
-                        this.players.push(this.localPlayer);
-                    }
-                    else
-                    {
-                        this.players.push(new RemotePlayer(this.socket, unitLogic, this.currentMap, remoteUnits));
-                    }
-                }
-
-                for (i = 0; i < this.players.length; i++)
-                {
-                    var player = this.players[i];
-                    player.on('defeat', this, this.onPlayerDefeat);
-                    player.on('endTurn', this, this.endTurn);
-                    player.on('attack', this, this.onLocalUnitAttack);
-                    player.on('move', this, this.onLocalUnitMove);
-                }
-
                 this.beginTurn(this.onCameraMoved.bind(this));
+            },
+
+            getUnitStatusPanelOptions: function (unit, isSelection)
+            {
+                var options = {};
+                options.showTurnIndicator = getOption('showTurnIndicator', isSelection);
+
+                if (unit.username === this.socket.user.username)
+                {
+                    options.showHP = getOption('showTeamHP', isSelection);
+                    options.showAP = getOption('showTeamAP', isSelection);
+                }
+                else
+                {
+                    options.showHP = getOption('showEnemyHP', isSelection);
+                    options.showAP = getOption('showEnemyAP', isSelection);
+                }
+
+                if (options.showHP || options.showAP || options.showTurnIndicator)
+                    return options;
             },
 
             beginTurn: function (callback)
@@ -99,7 +88,7 @@ define([
 
                 Renderer.camera.moveToUnit(this.turnManager.activeUnit, callback);
 
-                if (this.actionList.length > 0 && unit.player !== this.localPlayer)
+                if (this.actionList.length > 0 && !unit.isLocal)
                 {
                     // The local player is out of moves
                     this.socket.emit(this.socket.events.gameStateUpdate.url,
