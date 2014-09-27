@@ -15,7 +15,9 @@ define(['renderer/src/renderer', './scheduler'],
             Renderer.camera.trackUnit(unit);
 
             if (unit.statusPanel)
+            {
                 unit.statusPanel.apBar.disableTransitions();
+            }
 
             var endTileNode = pathNodes[pathNodes.length - 1];
             var cost = this.unitLogic.beginMoveUnit(this.map, unit, endTileNode);
@@ -91,9 +93,9 @@ define(['renderer/src/renderer', './scheduler'],
             });
         };
 
-        UnitActions.prototype.attack = function (targetTile, affectedTiles, attack)
+        UnitActions.prototype.attack = function (unit, targetTile, affectedTiles, attack, onAttackComplete)
         {
-            var results = this.unitLogic.performAttack(this.unit, attack, targetTile, affectedTiles);
+            var results = this.unitLogic.performAttack(unit, attack, targetTile, affectedTiles);
             for (var i = 0; i < results.length; i++)
             {
                 var result = results[i];
@@ -108,15 +110,15 @@ define(['renderer/src/renderer', './scheduler'],
                 }
             }
 
-            this.unit.setState('attack');
+            unit.setState('attack');
             // TODO SoundManager.playTrack(attack.track);
 
-            if (this.unit.statusPanel)
+            if (unit.statusPanel)
             {
-                this.unit.statusPanel.updateValues();
+                unit.statusPanel.updateValues();
             }
 
-            this.unit.on('animationComplete', this, function onAttackFinished()
+            unit.on('animationComplete', this, function onAttackFinished()
             {
                 for (var i = 0; i < results.length; i++)
                 {
@@ -127,9 +129,9 @@ define(['renderer/src/renderer', './scheduler'],
                     }
                 }
 
-                this.unit.setState('idle');
-                this.unit.off('animationComplete', this, onAttackFinished);
-                this.onAttackComplete();
+                unit.setState('idle');
+                unit.off('animationComplete', this, onAttackFinished);
+                onAttackComplete();
             });
         };
 

@@ -53,6 +53,7 @@ define([
                     unit.statusPanel.open(unit);
                     //unit.on('death', this.onSoldierDeath.bind(this));
 
+                    this.currentMap.addUnit(unit, unit.tileX, unit.tileY);
                     this.turnManager.addUnit(unit);
                     Renderer.addRenderableSoldier(unit);
                 }
@@ -178,7 +179,7 @@ define([
                 else
                 {
                     this.resetActionState();
-                    Renderer.camera.moveToUnit(this.unit);
+                    Renderer.camera.moveToUnit(this.turnManager.activeUnit);
                 }
             },
 
@@ -189,13 +190,13 @@ define([
                 this.actionPanel.hide();
                 this.actionPanel.target.statusPanel.previewAP();
 
-                this.unitActions.move(this.actionPanel.target, this.selectedTiles, this.onMoveComplete.bind(this));
+                this.unitActions.move(this.actionPanel.target, this.selectedTiles, this.resetActionState.bind(this));
 
                 var endTileNode = this.selectedTiles[this.selectedTiles.length - 1];
                 this.onLocalUnitMove(this.currentMap, this.actionPanel.target, endTileNode.x, endTileNode.y);
             },
 
-            onMoveComplete: function ()
+            resetActionState: function ()
             {
                 this.selectedTile = null;
                 this.selectedTiles = null;
@@ -209,6 +210,65 @@ define([
 
                 this.currentMap.off('tileClick', this, this.onMoveTileSelected);
                 this.currentMap.off('tileClick', this, this.onAttackTileSelected);
+                InputHandler.enableInput();
+            },
+
+            onAttackTileSelected: function (tile, tileX, tileY)
+            {
+                var hasTarget;
+                this.selectedTiles = null;
+                Renderer.clearRenderablePathById('selectedAttackNodes');
+                this.confirmationPanel.target = {
+                    tileX: tileX,
+                    tileY: tileY
+                };
+
+                this.selectedTile = tile && Utility.getElementByProperty(this.availableNodes, 'tile', tile);
+                if (this.selectedTile)
+                {
+                    this.selectedTiles = [this.selectedTile];
+                    if (this.currentAttack.useCrossNodes)
+                    {
+                        this.selectedTiles.push.apply(this.selectedTiles, this.unitLogic.calculateCrossNodes(this.turnManager.activeUnit, this.selectedTile, this.availableNodes));
+                    }
+
+                    for (var i = 0; i < this.selectedTiles.length; i++)
+                    {
+                        if (this.selectedTiles[i].tile.unit != null)
+                        {
+                            hasTarget = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (hasTarget)
+                {
+                    this.confirmationPanel.enableConfirm();
+                    this.turnManager.activeUnit.statusPanel.previewAP(this.unitLogic.getAttackCost(this.turnManager.activeUnit, this.currentAttack, this.selectedTile));
+                    Renderer.addRenderablePath('selectedAttackNodes', this.selectedTiles, true);
+                }
+                else
+                {
+                    this.turnManager.activeUnit.statusPanel.previewAP();
+                    this.confirmationPanel.disableConfirm();
+                }
+            },
+
+            onAttackConfirmed: function ()
+            {
+                InputHandler.disableInput();
+                Renderer.clearRenderablePaths();
+                this.actionPanel.hide();
+                this.turnManager.activeUnit.statusPanel.previewAP();
+
+                this.unitActions.attack(this.turnManager.activeUnit, this.selectedTile, this.selectedTiles, this.currentAttack, this.resetActionState.bind(this));
+
+                this.onLocalUnitAttack(this.turnManager.activeUnit, this.selectedTile, this.selectedTiles, this.currentAttack);
+            },
+
+            onAttackComplete: function ()
+            {
                 InputHandler.enableInput();
             },
 
@@ -228,7 +288,7 @@ define([
                 this.beginTurn(this.onCameraMoved.bind(this));
             },
 
-            onLocalUnitAttack: function (unit, attack, targetTile, affectedTiles)
+            onLocalUnitAttack: function (unit, targetTile, affectedTiles, attack)
             {
                 this.actionList.push(
                 {
