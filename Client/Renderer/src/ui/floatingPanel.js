@@ -1,13 +1,17 @@
 define(['core/src/events', 'renderer/src/renderer', 'core/src/scheduler'], function (Events, Renderer, Scheduler)
 {
     'use strict';
+
     function FloatingPanel()
     {
         this.element = document.createElement('div');
         this.element.className = 'floating-panel';
         this.element.style.opacity = 0;
 
-        this.updateEventData = {context: this, method: this.updatePosition};
+        this.updateEventData = {
+            context: this,
+            method: this.updatePosition
+        };
         this.element.addEventListener('webkitTransitionEnd', this.onTransitionEnd.bind(this));
         this.element.addEventListener('transitionend', this.onTransitionEnd.bind(this));
     }

@@ -1,9 +1,9 @@
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     height: 100%;
 }
-
 body {
     background-color: #000;
     background-repeat: no-repeat;
@@ -11,12 +11,10 @@ body {
     margin: 0;
     padding: 0;
 }
-
 body.main-menu {
     background-image: url("./menu/images/mainMenu.jpg");
     background-position: left top;
 }
-
 body.game {
     height: 100%;
     overflow: hidden;
@@ -25,17 +23,14 @@ body.game {
     -ms-user-select: none;
     user-select: none;
 }
-
 * {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
-
 input {
     border: 1px solid #c4c4c4;
 }
-
 button {
     background: #f7f7f7;
     border: 1px solid #c4c4c4;
@@ -43,24 +38,21 @@ button {
     min-width: 80px;
     min-height: 30px;
 }
-
 button:active {
     outline: 0;
     box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.25);
     border-color: #a0a0a0;
     background-color: #d6d6d6;
 }
-
-button:disabled, input[type="range"]:disabled {
+button:disabled,
+input[type="range"]:disabled {
     opacity: 0.4;
 }
-
 .clear-fix:after {
     content: " ";
     clear: both;
     display: block;
 }
-
 #contentWrapper {
     position: absolute;
     width: 800px;
@@ -73,7 +65,6 @@ button:disabled, input[type="range"]:disabled {
     transform: translate(-50%, -50%);
     -webkit-transform: translate(-50%, -50%);
 }
-
 #game-canvas {
     outline: 0;
     width: 100%;
@@ -84,29 +75,21 @@ button:disabled, input[type="range"]:disabled {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
 }
-
 .floating-panel {
     position: absolute;
     -webkit-transition: opacity 0.5s;
     transition: opacity 0.5s;
     opacity: 0;
 }
-
 .floating-panel:not(.isVisible) {
     pointer-events: none;
 }
-
 .action-panel {
-    width: 132px;
-    height: 88px;
     z-index: 5;
 }
-
 .confirmation-panel {
-    margin-top: 16px;
     z-index: 10;
 }
-
 .unit-status-panel {
     position: absolute;
     pointer-events: none;
@@ -115,7 +98,6 @@ button:disabled, input[type="range"]:disabled {
     z-index: 1;
     vertical-align: middle;
 }
-
 .turn-indicator {
     display: inline-block;
     width: 20px;
@@ -130,70 +112,67 @@ button:disabled, input[type="range"]:disabled {
     color: #ff1f00;
     line-height: 20px;
     margin-top: -6px;
+    opacity: 0.75;
 }
-
 .unit-status-panel.local .turn-indicator {
     background-color: #00230a;
     color: #00db30;
 }
-
 .status-indicator {
     display: inline-block;
     width: 50px;
+    opacity: 0.75;
 }
-
 .action {
-    width: 44px;
-    height: 44px;
-    background-size: 32px;
+    margin-left: -32px;
+    margin-top: -32px;
+    position: absolute;
+    background-size: 64px;
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    background: #CCC;
     background-repeat: no-repeat;
     background-position: center;
 }
-
 .action.disabled {
     opacity: 0.5;
     pointer-events: none;
 }
-
 .confirmation-panel .action {
     display: inline-block;
 }
-
 .action-panel .action {
     position: absolute;
+    width: 64px;
+    height: 64px;
     top: 0;
-    left: 44px;
-    width: 44px;
-    height: 44px;
+    left: 0;
     -webkit-transition: top 0.5s, left 0.5s;
     transition: top 0.5s, left 0.5s;
 }
+/* Calculated with sine and cosine, adjusted up 10y since the point is at the unit's feet */
 
 .action-panel.isVisible .action:nth-child(1) {
-    left: 0;
-    top: 0;
+    top: -96px;
 }
-
 .action-panel.isVisible .action:nth-child(2) {
-    left: 88px;
-    top: 0;
+    left: 91px;
+    top: -20px;
 }
-
 .action-panel.isVisible .action.action:nth-child(3) {
-    left: 0;
-    top: 44px;
+    left: 56px;
+    top: 67px;
 }
-
 .action-panel.isVisible .action.action:nth-child(4) {
-    top: 44px;
-    left: 44px;
+    left: -56px;
+    top: 67px;
 }
-
 .action-panel.isVisible .action.action:nth-child(5) {
-    top: 44px;
-    left: 88px;
+    left: -91px;
+    top: -20px;
 }
-
 .outerBar {
     position: relative;
     border: 1px solid #5f5f5f;
@@ -201,118 +180,102 @@ button:disabled, input[type="range"]:disabled {
     border-radius: 2px;
     height: 7px;
 }
-
 .ap-bar {
     height: 6px;
     border-top: none;
 }
-
-.innerBar, .innerBarPreview {
+.innerBar,
+.innerBarPreview {
     position: absolute;
     border-radius: 1px;
     left: 0;
     top: 0;
     bottom: 0;
 }
-
 .innerBar {
     -webkit-transition: width 1s;
     transition: width 1s;
 }
-
 .innerBarPreview {
     display: none;
 }
-
 .innerBarPreview.blink {
     display: block;
 }
-
-.hp-bar .innerBar, .hp-bar .innerBarPreview {
+.hp-bar .innerBar,
+.hp-bar .innerBarPreview {
     background: #13b22b;
 }
-
-.ap-bar .innerBar, .ap-bar .innerBarPreview {
+.ap-bar .innerBar,
+.ap-bar .innerBarPreview {
     background: #d6ca20;
 }
-
 .unit-type-archer {
     background-image: url('renderer/content/images/archerIcon.png');
 }
-
 .unit-type-rogue {
     background-image: url('renderer/content/images/dualWieldIcon.png');
 }
-
 .unit-type-shield {
     background-image: url('renderer/content/images/swordAndShieldIcon.png');
 }
-
 .unit-type-warrior {
     background-image: url('renderer/content/images/twoHandedIcon.png');
 }
-
 .action[data-action-name="move"] {
     background-image: url('renderer/content/images/moveIcon.png');
 }
-
 .action[data-action-name="endTurn"] {
     background-image: url('renderer/content/images/endTurnIcon.png');
 }
-
 .action[data-action-name="confirm"] {
     background-image: url('renderer/content/images/confirmIcon.png');
 }
-
+.confirmation-panel.isVisible .action[data-action-name="confirm"] {
+    top: 32px;
+    left: -64px;
+}
 .action[data-action-name="cancel"] {
     background-image: url('renderer/content/images/cancelIcon.png');
 }
-
+.confirmation-panel.isVisible .action[data-action-name="cancel"] {
+    top: 32px;
+    left: 64px;
+}
 .action[data-action-name="rangedAttack"] {
     background-image: url('renderer/content/images/rangeAttackIcon.png');
 }
-
 .action[data-action-name="overheadAttack"] {
     background-image: url('renderer/content/images/rangeAttackIcon.png');
 }
-
 .action[data-action-name="meleeAttack"] {
     background-image: url('renderer/content/images/rangeAttackIcon.png');
 }
-
 .action[data-action-name="strike"] {
     background-image: url('renderer/content/images/attackIcon.png');
 }
-
 .action[data-action-name="shieldBash"] {
     background-image: url('renderer/content/images/shieldIcon.png');
 }
-
 .action[data-action-name="defend"] {
     background-image: url('renderer/content/images/shieldIcon.png');
 }
-
 .action[data-action-name="sweep"] {
     background-image: url('renderer/content/images/attackIcon.png');
 }
-
 .action[data-action-name="overhead"] {
     background-image: url('renderer/content/images/attackIcon.png');
 }
-
 .action[data-action-name="throwDagger"] {
     background-image: url('renderer/content/images/attackIcon.png');
 }
-
 .action[data-action-name="vitalStrike"] {
     background-image: url('renderer/content/images/attackIcon.png');
 }
-
 .blink {
     -webkit-animation: blink 1s ease-in-out infinite alternate;
     animation: blink 1s ease-in-out infinite alternate;
 }
-
 @keyframes blink {
     from {
         opacity: 1;
@@ -321,7 +284,6 @@ button:disabled, input[type="range"]:disabled {
         opacity: 0;
     }
 }
-
 @-webkit-keyframes blink {
     from {
         opacity: 1;
@@ -330,7 +292,6 @@ button:disabled, input[type="range"]:disabled {
         opacity: 0;
     }
 }
-
 .no-transition {
     -webkit-transition: none !important;
     transition: none !important;
