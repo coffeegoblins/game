@@ -76,7 +76,7 @@ define(['core/src/events', 'renderer/src/renderer', 'core/src/scheduler'], funct
             return;
 
         var camera = Renderer.camera;
-        var targetCenter = camera.tileToScreen(this.target.tileX, this.target.tileY);
+        var targetCenter = camera.tileToScreen(this.target.x, this.target.y);
         targetCenter.x -= camera.viewportRect.x - camera.halfTileWidth;
         targetCenter.y -= camera.viewportRect.y - camera.halfTileHeight;
 

@@ -4,11 +4,19 @@ define(['core/src/imageCache', 'core/src/spriteSheet', 'text!../content/animatio
 
     var animations = JSON.parse(AnimationDefinitions);
 
+    var directions = [
+        [6, 7, 0],
+        [5, 0, 1],
+        [4, 3, 2]
+    ];
+
     function RenderableSoldier(unit, localUsername)
     {
         this.unit = unit;
         this.localUsername = localUsername;
-        this.style = {opacity: 1};
+        this.style = {
+            opacity: 1
+        };
 
         this.createSpriteSheets(this.unit.type);
         this.unit.on('directionChange', this.onDirectionChange.bind(this));
@@ -23,7 +31,8 @@ define(['core/src/imageCache', 'core/src/spriteSheet', 'text!../content/animatio
         for (var animationName in animationDefinitions)
         {
             var animationDefinition = animationDefinitions[animationName];
-            var spriteSheet = new SpriteSheet(type + animationName, 'renderer/content/images/' + animationDefinition.spriteSheet + '.png', {
+            var spriteSheet = new SpriteSheet(type + animationName, 'renderer/content/images/' + animationDefinition.spriteSheet + '.png',
+            {
                 tileWidth: animationDefinition.tileWidth,
                 tileHeight: animationDefinition.tileHeight
             });
@@ -41,7 +50,8 @@ define(['core/src/imageCache', 'core/src/spriteSheet', 'text!../content/animatio
                     }
                 }
 
-                spriteSheet.defineAnimation(i, {
+                spriteSheet.defineAnimation(i,
+                {
                     id: animationName,
                     start: i * animationDefinition.frameCount,
                     end: (i + 1) * animationDefinition.frameCount - 1,
@@ -64,17 +74,17 @@ define(['core/src/imageCache', 'core/src/spriteSheet', 'text!../content/animatio
 
     RenderableSoldier.prototype.getTileRight = function ()
     {
-        return this.unit.tileX + 1;
+        return this.unit.x + 1;
     };
 
     RenderableSoldier.prototype.getTileBottom = function ()
     {
-        return this.unit.tileY + 1;
+        return this.unit.y + 1;
     };
 
     RenderableSoldier.prototype.isPointInside = function (camera, x, y)
     {
-        var position = camera.tileToScreen(this.unit.tileX, this.unit.tileY);
+        var position = camera.tileToScreen(this.unit.x, this.unit.y);
 
         var width = 40 * camera.scale;
         var height = 64 * camera.scale;
@@ -86,7 +96,8 @@ define(['core/src/imageCache', 'core/src/spriteSheet', 'text!../content/animatio
 
     RenderableSoldier.prototype.onDirectionChange = function ()
     {
-        this.spriteSheets[this.unit.state].playAnimation(this.unit.direction);
+        var directionAnimation = directions[this.unit.direction.y + 1][this.unit.direction.x + 1];
+        this.spriteSheets[this.unit.state].playAnimation(directionAnimation);
     };
 
     RenderableSoldier.prototype.onAnimationComplete = function (animation)
@@ -102,7 +113,7 @@ define(['core/src/imageCache', 'core/src/spriteSheet', 'text!../content/animatio
         if (!spriteSheet.isLoaded())
             return;
 
-        var position = camera.tileToScreen(this.unit.tileX, this.unit.tileY);
+        var position = camera.tileToScreen(this.unit.x, this.unit.y);
         position.x -= camera.viewportRect.x - camera.halfTileWidth;
         position.y -= camera.viewportRect.y;
 

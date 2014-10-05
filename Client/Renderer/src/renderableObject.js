@@ -39,12 +39,12 @@ define(['core/src/spriteSheet', 'text!../content/objects.json'], function (Sprit
 
     RenderableObject.prototype.getTileRight = function ()
     {
-        return this.object.tileX + this.object.sizeX;
+        return this.object.x + this.object.sizeX;
     };
 
     RenderableObject.prototype.getTileBottom = function ()
     {
-        return this.object.tileY + this.object.sizeY;
+        return this.object.y + this.object.sizeY;
     };
 
     RenderableObject.prototype.render = function (context, deltaTime, camera)
@@ -55,7 +55,7 @@ define(['core/src/spriteSheet', 'text!../content/objects.json'], function (Sprit
         var tileRect = this.spriteSheet.getCurrentTileBounds();
         if (tileRect)
         {
-            var position = camera.tileToScreen(this.object.tileX, this.object.tileY);
+            var position = camera.tileToScreen(this.object.x, this.object.y);
 
             var tileHeight = this.object.sizeY * camera.tileHeight;
             var imageWidth = this.spriteSheet.tileWidth * camera.scale;

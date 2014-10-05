@@ -41,7 +41,7 @@ define(['renderer/src/effects/transitionEffect'], function (TransitionEffect)
 
     Camera.prototype.moveToUnit = function (unit, callback, duration)
     {
-        var position = this.tileToScreen(unit.tileX, unit.tileY);
+        var position = this.tileToScreen(unit.x, unit.y);
         var xPosition = Math.floor(position.x - this.viewportRect.width / 2);
         var yPosition = Math.floor(position.y - this.viewportRect.height / 2);
 

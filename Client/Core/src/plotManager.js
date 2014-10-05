@@ -24,19 +24,19 @@ define([
 
         return {
 
-            loadGame: function (socket, unitLogic, game, levelData)
+            loadGame: function (socket, gameLogic, game, levelData)
             {
                 InputHandler.enableInput();
 
                 this.socket = socket;
-                this.unitLogic = unitLogic;
+                this.gameLogic = gameLogic;
                 this.currentGame = game;
                 this.currentMap = levelData.map;
                 this.turnManager = new TurnManager();
                 this.actionList = [];
                 this.actionPanel = new ActionPanel();
                 this.actionPanel.on('actionSelected', this, this.onActionSelected);
-                this.unitActions = new UnitActions(this.unitLogic, this.currentMap);
+                this.unitActions = new UnitActions(this.gameLogic, this.currentMap);
 
                 this.socket.on(this.socket.events.gameStateUpdate.response.success, function ()
                 {
@@ -53,7 +53,7 @@ define([
                     unit.statusPanel.open(unit);
                     //unit.on('death', this.onSoldierDeath.bind(this));
 
-                    this.currentMap.addUnit(unit, unit.tileX, unit.tileY);
+                    this.currentMap.addUnit(unit, unit.x, unit.y);
                     this.turnManager.addUnit(unit);
                     Renderer.addRenderableSoldier(unit);
                 }
@@ -107,7 +107,7 @@ define([
                     return;
                 }
 
-                this.actionPanel.open(unit, this.unitLogic.getAttacks(unit));
+                this.actionPanel.open(unit, this.gameLogic.getAttacks(unit));
             },
 
             onActionSelected: function (unit, action)
@@ -123,14 +123,14 @@ define([
 
                 if (action.name === 'move')
                 {
-                    this.availableNodes = this.unitLogic.getMoveNodes(this.currentMap, unit);
+                    this.availableNodes = this.gameLogic.getMoveNodes(this.currentMap, unit);
                     Renderer.addRenderablePath('moveTiles', this.availableNodes, false);
                     this.currentMap.on('tileClick', this, this.onMoveTileSelected);
                 }
                 else
                 {
                     this.currentAttack = action;
-                    this.availableNodes = this.unitLogic.getAttackNodes(this.currentMap, unit, this.currentAttack);
+                    this.availableNodes = this.gameLogic.attacks[action.name].getAttackNodes(this.currentMap, unit);
 
                     Renderer.addRenderablePath('attack', this.availableNodes, false);
                     this.currentMap.on('tileClick', this, this.onAttackTileSelected);
@@ -141,24 +141,24 @@ define([
                 this.confirmationPanel.open(unit);
             },
 
-            onMoveTileSelected: function (tile, tileX, tileY)
+            onMoveTileSelected: function (tile, x, y)
             {
                 Renderer.clearRenderablePathById('selectedPath');
 
                 this.confirmationPanel.target = {
-                    tileX: tileX,
-                    tileY: tileY
+                    x: x,
+                    y: y
                 };
 
                 var pathNode = tile && Utility.getElementByProperty(this.availableNodes, 'tile', tile);
                 if (pathNode)
                 {
-                    this.selectedTiles = this.unitLogic.calculatePathFromNodes(pathNode, this.actionPanel.target.tileX, this.actionPanel.target.tileY);
-                    this.selectedTile = this.selectedTiles[this.selectedTiles.length - 1];
-                    this.actionPanel.target.statusPanel.previewAP(this.unitLogic.getMoveCost(this.actionPanel.target, this.selectedTile.distance));
+                    this.selectedNodes = this.gameLogic.calculatePathFromNodes(pathNode, this.actionPanel.target.x, this.actionPanel.target.y);
+                    this.selectedNode = this.selectedNodes[this.selectedNodes.length - 1];
+                    this.actionPanel.target.statusPanel.previewAP(this.gameLogic.getMoveCost(this.actionPanel.target, this.selectedNode.distance));
 
                     this.confirmationPanel.enableConfirm();
-                    Renderer.addRenderablePath('selectedPath', this.selectedTiles, true);
+                    Renderer.addRenderablePath('selectedPath', this.selectedNodes, true);
                 }
                 else
                 {
@@ -190,16 +190,16 @@ define([
                 this.actionPanel.hide();
                 this.actionPanel.target.statusPanel.previewAP();
 
-                this.unitActions.move(this.actionPanel.target, this.selectedTiles, this.resetActionState.bind(this));
+                this.unitActions.move(this.actionPanel.target, this.selectedNodes, this.resetActionState.bind(this));
 
-                var endTileNode = this.selectedTiles[this.selectedTiles.length - 1];
+                var endTileNode = this.selectedNodes[this.selectedNodes.length - 1];
                 this.onLocalUnitMove(this.currentMap, this.actionPanel.target, endTileNode.x, endTileNode.y);
             },
 
             resetActionState: function ()
             {
-                this.selectedTile = null;
-                this.selectedTiles = null;
+                this.selectedNode = null;
+                this.selectedNodes = null;
                 this.currentAttack = null;
                 this.availableNodes = null;
 
@@ -213,40 +213,36 @@ define([
                 InputHandler.enableInput();
             },
 
-            onAttackTileSelected: function (tile, tileX, tileY)
+            onAttackTileSelected: function (tile, x, y)
             {
-                var hasTarget;
-                this.selectedTiles = null;
+                this.selectedNode = tile && Utility.getElementByProperty(this.availableNodes, 'tile', tile);
+                if (!this.selectedNode)
+                {
+                    return;
+                }
+
+
                 Renderer.clearRenderablePathById('selectedAttackNodes');
+
                 this.confirmationPanel.target = {
-                    tileX: tileX,
-                    tileY: tileY
+                    x: x,
+                    y: y
                 };
 
-                this.selectedTile = tile && Utility.getElementByProperty(this.availableNodes, 'tile', tile);
-                if (this.selectedTile)
-                {
-                    this.selectedTiles = [this.selectedTile];
-                    if (this.currentAttack.useCrossNodes)
-                    {
-                        this.selectedTiles.push.apply(this.selectedTiles, this.unitLogic.calculateCrossNodes(this.turnManager.activeUnit, this.selectedTile, this.availableNodes));
-                    }
+                var attackName = this.currentAttack.name;
 
-                    for (var i = 0; i < this.selectedTiles.length; i++)
-                    {
-                        if (this.selectedTiles[i].tile.unit != null)
-                        {
-                            hasTarget = true;
-                            break;
-                        }
-                    }
-                }
+                this.selectedNodes = this.gameLogic.attacks[attackName].getAttackNodes(this.currentMap, this.turnManager.activeUnit);
+                var hasTarget = this.gameLogic.hasTarget(this.selectedNodes);
 
                 if (hasTarget)
                 {
                     this.confirmationPanel.enableConfirm();
-                    this.turnManager.activeUnit.statusPanel.previewAP(this.unitLogic.getAttackCost(this.turnManager.activeUnit, this.currentAttack, this.selectedTile));
-                    Renderer.addRenderablePath('selectedAttackNodes', this.selectedTiles, true);
+
+                    var baseCost = this.gameLogic.attacks[attackName].attackCost;
+                    var totalCost = this.gameLogic.getAttackCost(this.turnManager.activeUnit, this.selectedNode, baseCost);
+
+                    this.turnManager.activeUnit.statusPanel.previewAP(totalCost);
+                    Renderer.addRenderablePath('selectedAttackNodes', this.selectedNodes, true);
                 }
                 else
                 {
@@ -262,9 +258,8 @@ define([
                 this.actionPanel.hide();
                 this.turnManager.activeUnit.statusPanel.previewAP();
 
-                this.unitActions.attack(this.turnManager.activeUnit, this.selectedTile, this.selectedTiles, this.currentAttack, this.resetActionState.bind(this));
-
-                this.onLocalUnitAttack(this.turnManager.activeUnit, this.selectedTile, this.selectedTiles, this.currentAttack);
+                this.unitActions.attack(this.turnManager.activeUnit, this.selectedNode, this.currentAttack, this.resetActionState.bind(this));
+                this.onLocalUnitAttack(this.turnManager.activeUnit, this.selectedNode, this.currentAttack.name);
             },
 
             onAttackComplete: function ()
@@ -278,7 +273,7 @@ define([
                 {
                     this.actionList.push(
                     {
-                        type: "ENDTURN"
+                        type: "endTurn"
                     });
                 }
 
@@ -288,15 +283,15 @@ define([
                 this.beginTurn(this.onCameraMoved.bind(this));
             },
 
-            onLocalUnitAttack: function (unit, targetTile, affectedTiles, attack)
+            onLocalUnitAttack: function (unit, targetNode, attackName)
             {
+                // TODO Just pass x and y for tiles
                 this.actionList.push(
                 {
-                    type: "ATTACK",
+                    type: attackName,
                     unitID: unit._id,
-                    attack: attack,
-                    targetTile: targetTile,
-                    affectedTiles: affectedTiles
+                    targetX: targetNode.x,
+                    targetY: targetNode.y
                 });
             },
 
@@ -304,7 +299,7 @@ define([
             {
                 this.actionList.push(
                 {
-                    type: "MOVE",
+                    type: "move",
                     unitID: unit._id.toString(),
                     x: x,
                     y: y
@@ -324,34 +319,34 @@ define([
             performActions: function (actions)
             {
                 var action = actions.shift();
-                switch (action.type)
+                switch (action.type.toLowerCase())
                 {
 
-                case "MOVE":
+                case "move":
                     {
                         var unit = this.turnManager.activeUnit;
-                        this.availableNodes = this.unitLogic.getMoveNodes(this.currentMap, unit);
+                        this.availableNodes = this.gameLogic.getMoveNodes(this.currentMap, unit);
 
                         for (var i = 0; i < this.availableNodes.length; ++i)
                         {
                             var node = this.availableNodes[i];
                             if (node.x === action.x && node.y === action.y)
                             {
-                                this.selectedTiles = this.unitLogic.calculatePathFromNodes(node, unit.tileX, unit.tileY);
-                                this.unitActions.move(this.turnManager.activeUnit, this.selectedTiles, this.performActions.bind(this, actions));
+                                this.selectedNodes = this.gameLogic.calculatePathFromNodes(node, unit.x, unit.y);
+                                this.unitActions.move(this.turnManager.activeUnit, this.selectedNodes, this.performActions.bind(this, actions));
                             }
                         }
 
                         break;
                     }
 
-                case "ATTACK":
+                case "attack":
                     {
                         // TODO
                         break;
                     }
 
-                case "ENDTURN":
+                case "endturn":
                     {
                         // Nothing to validate
                         this.endTurn();

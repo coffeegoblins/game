@@ -4130,9 +4130,9 @@ define('editor/controls/tileSelectionPopup', ['engine/core/events'], function (E
                     {
                         for (var x = 0; x < this.brush.rect.width; x++)
                         {
-                            var tileX = x + this.brush.rect.left;
-                            var tileY = y + this.brush.rect.top;
-                            var tile = this.spriteSheet.getTile(tileX, tileY) + 1;
+                            var x = x + this.brush.rect.left;
+                            var y = y + this.brush.rect.top;
+                            var tile = this.spriteSheet.getTile(x, y) + 1;
                             this.brush.tiles.push(tile);
                         }
                     }
@@ -4474,13 +4474,13 @@ define('editor/layers/tileLayer', ['Editor', 'engine/media/spriteSheet', '../con
         {
             for (var y = 0; y < this.brush.rect.height; y++)
             {
-                var tileX = this.brush.rect.left + x;
-                var tileY = this.brush.rect.top + y;
+                var x = this.brush.rect.left + x;
+                var y = this.brush.rect.top + y;
 
-                if (this.tileMap.isInBounds(tileX, tileY))
+                if (this.tileMap.isInBounds(x, y))
                 {
                     var tile = this.brush.tiles[x + y * this.brush.rect.width];
-                    this.tileMap.setTile(tileX, tileY, tile);
+                    this.tileMap.setTile(x, y, tile);
                 }
             }
         }

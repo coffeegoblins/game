@@ -19,7 +19,7 @@ define(['core/src/attackManager', 'core/src/map', 'renderer/src/ui/unitView', 'r
             this.attackManager.actionBarSnapshot = [
                 {}
             ];
-            this.attackManager.activeUnit = {tileX: 0, tileY: 0, weapon: {range: 1}};
+            this.attackManager.activeUnit = {x: 0, y: 0, weapon: {range: 1}};
         };
 
         AttackManagerTest.prototype.tearDown = function ()
@@ -35,7 +35,7 @@ define(['core/src/attackManager', 'core/src/map', 'renderer/src/ui/unitView', 'r
             this.attackManager.onLongShotAction();
 
             var targetNode = this.attackManager.availableAttackTiles[0];
-            targetNode.tile.unit = {tileX: 0, tileY: 0};
+            targetNode.tile.unit = {x: 0, y: 0};
 
             this.attackManager.onTileSelected({}, targetNode.tile, 0, 0);
 

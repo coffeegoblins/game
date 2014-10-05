@@ -76,7 +76,7 @@ define(['core/src/pathManager', 'core/src/map', 'core/src/utility'], function (P
 
     PathManagerTest.prototype.testUnitBlocksTile = function ()
     {
-        this.map.getTile(1, 1).unit = {tileX: 1, tileY: 1};
+        this.map.getTile(1, 1).unit = {x: 1, y: 1};
 
         var pathNodes = PathManager.calculateAvailableTiles(this.map, {
             x: 0,

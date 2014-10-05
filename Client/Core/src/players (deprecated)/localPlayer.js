@@ -88,12 +88,12 @@ define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../
             }
         };
 
-        LocalPlayer.prototype.onAttackTileSelected = function (tile, tileX, tileY)
+        LocalPlayer.prototype.onAttackTileSelected = function (tile, x, y)
         {
             var hasTarget;
             this.selectedTiles = null;
             Renderer.clearRenderablePathById('selectedAttackNodes');
-            this.confirmationPanel.target = {tileX: tileX, tileY: tileY};
+            this.confirmationPanel.target = {x: x, y: y};
 
             this.selectedTile = tile && Utility.getElementByProperty(this.availableNodes, 'tile', tile);
             if (this.selectedTile)
@@ -145,15 +145,15 @@ define(['renderer/src/ui/actionPanel', 'renderer/src/ui/confirmationPanel', '../
             InputHandler.enableInput();
         };
 
-        LocalPlayer.prototype.onMoveTileSelected = function (tile, tileX, tileY)
+        LocalPlayer.prototype.onMoveTileSelected = function (tile, x, y)
         {
             Renderer.clearRenderablePathById('selectedPath');
-            this.confirmationPanel.target = {tileX: tileX, tileY: tileY};
+            this.confirmationPanel.target = {x: x, y: y};
 
             var pathNode = tile && Utility.getElementByProperty(this.availableNodes, 'tile', tile);
             if (pathNode)
             {
-                this.selectedTiles = this.unitLogic.calculatePathFromNodes(pathNode, this.unit.tileX, this.unit.tileY);
+                this.selectedTiles = this.unitLogic.calculatePathFromNodes(pathNode, this.unit.x, this.unit.y);
                 this.selectedTile = this.selectedTiles[this.selectedTiles.length - 1];
                 this.unit.statusPanel.previewAP(this.unitLogic.getMoveCost(this.unit, this.selectedTile.distance));
 

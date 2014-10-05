@@ -3,9 +3,9 @@ define(['renderer/src/renderer', './scheduler'],
     {
         'use strict';
 
-        function UnitActions(unitLogic, map)
+        function UnitActions(gameLogic, map)
         {
-            this.unitLogic = unitLogic;
+            this.gameLogic = gameLogic;
             this.map = map;
         }
 
@@ -20,7 +20,7 @@ define(['renderer/src/renderer', './scheduler'],
             }
 
             var endTileNode = pathNodes[pathNodes.length - 1];
-            var cost = this.unitLogic.beginMoveUnit(this.map, unit, endTileNode);
+            var cost = this.gameLogic.beginMoveUnit(this.map, unit, endTileNode);
 
             var startAp = unit.ap;
             var endAp = unit.ap - cost;
@@ -28,8 +28,8 @@ define(['renderer/src/renderer', './scheduler'],
             var path = pathNodes.slice();
             path.unshift(
             {
-                x: unit.tileX,
-                y: unit.tileY
+                x: unit.x,
+                y: unit.y
             });
 
             var progressTime = 0;
@@ -67,8 +67,8 @@ define(['renderer/src/renderer', './scheduler'],
                     unit.setDirection(deltaX, deltaY);
 
                     var nodeProgressPercentage = (progressPercentage - nextNode.startPercentage) / nextNode.percentageShare;
-                    unit.tileX = currentNode.x + (deltaX * nodeProgressPercentage);
-                    unit.tileY = currentNode.y + (deltaY * nodeProgressPercentage);
+                    unit.x = currentNode.x + (deltaX * nodeProgressPercentage);
+                    unit.y = currentNode.y + (deltaY * nodeProgressPercentage);
 
                     unit.ap = startAp + (endAp - startAp) * progressPercentage;
                     if (unit.statusPanel)
@@ -79,7 +79,7 @@ define(['renderer/src/renderer', './scheduler'],
                 completedMethod: function ()
                 {
                     unit.setState('idle');
-                    this.unitLogic.endMoveUnit(unit, endTileNode, cost);
+                    this.gameLogic.endMoveUnit(unit, endTileNode, cost);
 
                     if (unit.statusPanel)
                     {
@@ -93,22 +93,9 @@ define(['renderer/src/renderer', './scheduler'],
             });
         };
 
-        UnitActions.prototype.attack = function (unit, targetTile, affectedTiles, attack, onAttackComplete)
+        UnitActions.prototype.attack = function (unit, targetNode, attack, onAttackComplete)
         {
-            var results = this.unitLogic.performAttack(unit, attack, targetTile, affectedTiles);
-            for (var i = 0; i < results.length; i++)
-            {
-                var result = results[i];
-                if (!result.damage)
-                {
-                    result.unit.setState('evade');
-                    result.unit.on('animationComplete', function onAnimationComplete()
-                    {
-                        this.setState('idle');
-                        this.off('animationComplete', onAnimationComplete);
-                    });
-                }
-            }
+            var results = this.gameLogic.attacks[attack.name].performAttack(unit, targetNode);
 
             unit.setState('attack');
             // TODO SoundManager.playTrack(attack.track);
@@ -123,6 +110,13 @@ define(['renderer/src/renderer', './scheduler'],
                 for (var i = 0; i < results.length; i++)
                 {
                     var result = results[i];
+                    if (!result)
+                    {
+                        result.unit.setState('evade');
+                        result.unit.on('animationComplete', this.onAnimationComplete);
+                        continue;
+                    }
+
                     if (result.damage && result.unit.statusPanel)
                     {
                         result.unit.statusPanel.updateValues();
@@ -133,6 +127,12 @@ define(['renderer/src/renderer', './scheduler'],
                 unit.off('animationComplete', this, onAttackFinished);
                 onAttackComplete();
             });
+        };
+
+        UnitActions.prototype.onAnimationComplete = function ()
+        {
+            this.setState('idle');
+            this.off('animationComplete', this.onAnimationComplete);
         };
 
         return UnitActions;

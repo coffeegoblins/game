@@ -12,14 +12,14 @@ define(['./events'], function (Events)
 
     Map.prototype.addObject = function (object, x, y)
     {
-        object.tileX = x;
-        object.tileY = y;
+        object.x = x;
+        object.y = y;
 
-        for (var tileX = x; tileX < x + object.sizeX; tileX++)
+        for (var x = x; x < x + object.sizeX; x++)
         {
-            for (var tileY = y; tileY < y + object.sizeY; tileY++)
+            for (var y = y; y < y + object.sizeY; y++)
             {
-                var tile = this.getTile(tileX, tileY);
+                var tile = this.getTile(x, y);
                 if (tile)
                 {
                     tile.content = object;
@@ -32,16 +32,16 @@ define(['./events'], function (Events)
     {
         var tile = this.getTile(x, y);
 
-        unit.tileX = x;
-        unit.tileY = y;
+        unit.x = x;
+        unit.y = y;
 
         tile.unit = unit;
         unit.on('death', this, this.removeUnit);
     };
 
-    Map.prototype.canMoveToTile = function (unit, tileX, tileY)
+    Map.prototype.canMoveToTile = function (unit, x, y)
     {
-        var tile = this.getTile(tileX, tileY);
+        var tile = this.getTile(x, y);
         if (!tile || tile.unit)
             return false;
 
@@ -75,11 +75,11 @@ define(['./events'], function (Events)
 
     Map.prototype.removeObject = function (object)
     {
-        for (var tileX = object.tileX; tileX < object.tileX + object.sizeX; tileX++)
+        for (var x = object.x; x < object.x + object.sizeX; x++)
         {
-            for (var tileY = object.tileY; tileY < object.tileY + object.sizeY; tileY++)
+            for (var y = object.y; y < object.y + object.sizeY; y++)
             {
-                var tile = this.getTile(tileX, tileY);
+                var tile = this.getTile(x, y);
                 if (tile && tile.content === object)
                     tile.content = null;
             }
@@ -88,7 +88,7 @@ define(['./events'], function (Events)
 
     Map.prototype.removeUnit = function (unit)
     {
-        var tile = this.getTile(unit.tileX, unit.tileY);
+        var tile = this.getTile(unit.x, unit.y);
         tile.unit = null;
     };
 

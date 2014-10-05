@@ -41,8 +41,8 @@ define(['core/src/imageCache', 'renderer/src/renderableObject'], function (Image
                     break;
             }
 
-            var xPosition = this.object.tileX * tileSize + horizontalOffset - viewportRect.x;
-            var yPosition = this.object.tileY * tileSize + verticalOffset - viewportRect.y;
+            var xPosition = this.object.x * tileSize + horizontalOffset - viewportRect.x;
+            var yPosition = this.object.y * tileSize + verticalOffset - viewportRect.y;
 
             context.save();
 

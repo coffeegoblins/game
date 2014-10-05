@@ -12,18 +12,15 @@ define(['./events', './utility'], function (Events, Utility)
         state: 'idle'
     };
 
-    var directions = [
-        [6, 7, 0],
-        [5, 0, 1],
-        [4, 3, 2]
-    ];
-
     function Soldier(properties)
     {
         Utility.merge(this, defaults, properties);
 
-        this.worldDirection = {};
-        this.setDirection(1, 0);
+        this.direction = {
+            x: 1,
+            y: 1
+        };
+        //this.setDirection(1, 0);
     }
 
     Soldier.prototype.damage = function (amount)
@@ -36,26 +33,27 @@ define(['./events', './utility'], function (Events, Utility)
             this.trigger('death', this);
         }
     };
-
-    Soldier.prototype.setDirection = function (x, y)
-    {
-        if (Math.abs(x) > 1 || Math.abs(y) > 1)
-        {
-            // Normalize the direction
-            var length = Math.sqrt(x * x + y * y);
-            x = Math.round(x / length);
-            y = Math.round(y / length);
-        }
-
-        this.worldDirection.x = x;
-        this.worldDirection.y = y;
-
-        var previousDirection = this.direction;
-        this.direction = directions[y + 1][x + 1];
-
-        if (this.direction !== previousDirection)
-            this.trigger('directionChange');
-    };
+    //
+    //    // TODO Replace with server logic
+    //    Soldier.prototype.setDirection = function (x, y)
+    //    {
+    //        if (Math.abs(x) > 1 || Math.abs(y) > 1)
+    //        {
+    //            // Normalize the direction
+    //            var length = Math.sqrt(x * x + y * y);
+    //            x = Math.round(x / length);
+    //            y = Math.round(y / length);
+    //        }
+    //
+    //        this.worldDirection.x = x;
+    //        this.worldDirection.y = y;
+    //
+    //        var previousDirection = this.direction;
+    //        this.direction = directions[y + 1][x + 1];
+    //
+    //        if (this.direction !== previousDirection)
+    //            this.trigger('directionChange');
+    //    };
 
     Soldier.prototype.setState = function (state)
     {

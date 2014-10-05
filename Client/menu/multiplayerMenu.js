@@ -88,8 +88,8 @@ define([
                 var serializedGameLogic = window.localStorage.getItem('gameLogic');
                 if (serializedGameLogic)
                 {
-                    this.gameLogic = JSON.parse(serializedGameLogic, parseFunctions);
-                    gameLogicVersion = this.gameLogic.version;
+                    //this.gameLogic = JSON.parse(serializedGameLogic, parseFunctions);
+                    gameLogicVersion = '0.0';
                 }
 
                 this.socket.emit(this.socket.events.getGameLogic.url, gameLogicVersion);
