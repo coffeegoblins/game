@@ -1,55 +1,45 @@
 .battle-config {
     padding: 32px;
 }
-
 .battle-config .config-column {
     display: inline-block;
     vertical-align: top;
 }
-
 @media (min-width: 600px) {
     .battle-config .config-column {
         width: 50%;
     }
 }
-
 .battle-config label {
     display: block;
     margin-bottom: 12px;
 }
-
 .battle-config label span:first-child {
     min-width: 3em;
     display: inline-block;
 }
-
 .battle-config label span:last-child {
     margin-left: 6px;
 }
-
-.battle-config input, .battle-config select {
+.battle-config input,
+.battle-config select {
     vertical-align: middle;
 }
-
 #level-preview {
     width: 100%;
     padding: 16px;
 }
-
 .tab-content-container {
     padding: 0 16px;
     position: relative;
 }
-
 .tab-header {
     padding: 0;
 }
-
 .tab {
     display: inline-block;
     width: 25%;
 }
-
 .tab-header-content {
     margin: 0 auto;
     position: relative;
@@ -57,20 +47,17 @@
     text-align: center;
     border-bottom: 1px solid transparent;
 }
-
 .tab.selected .tab-header-content {
     opacity: 1;
     border-bottom-color: #000;
     max-width: 64px;
 }
-
 .tab .unit-type {
     height: 32px;
     width: 32px;
     background-size: 32px;
     margin: 4px auto;
 }
-
 .tab .unit-count {
     position: absolute;
     left: 50%;
@@ -84,76 +71,53 @@
     font-weight: bold;
     line-height: 20px;
 }
-
 .unit-count:empty {
     display: none;
 }
-
-.tab[data-unit="archer"] .unit-type {
+.tab[data-unit="Archer"] .unit-type {
     background-image: url('../renderer/content/images/archerIcon.png');
 }
-
-.tab[data-unit="rogue"] .unit-type {
-    background-image: url('../renderer/content/images/dualWieldIcon.png');
-}
-
-.tab[data-unit="shield"] .unit-type {
+.tab[data-unit="Shield"] .unit-type {
     background-image: url('../renderer/content/images/swordAndShieldIcon.png');
 }
-
-.tab[data-unit="warrior"] .unit-type {
+.tab[data-unit="Warrior"] .unit-type {
     background-image: url('../renderer/content/images/twoHandedIcon.png');
 }
-
 .tab-content {
     display: inline-block;
 }
-
 .tab-content:not(.selected) {
     display: none;
 }
-
 .unit-preview {
     float: left;
     width: 64px;
     height: 64px;
 }
-
-.tab-content[data-unit="shield"] .unit-preview {
+.tab-content[data-unit="Shield"] .unit-preview {
     background: url('../renderer/content/images/shield - idle.png') -12px -168px;
 }
-
-.tab-content[data-unit="warrior"] .unit-preview {
+.tab-content[data-unit="Warrior"] .unit-preview {
     background: url('../renderer/content/images/warrior - idle.png') -6px -144px;
 }
-
-.tab-content[data-unit="archer"] .unit-preview {
+.tab-content[data-unit="Archer"] .unit-preview {
     background: url('../renderer/content/images/archer - idle.png') 0 -116px;
 }
-
-.tab-content[data-unit="rogue"] .unit-preview {
-    background: url('../renderer/content/images/shield - idle.png') -12px -168px;
-}
-
 .battle-config footer {
     margin-top: 32px;
 }
-
 .battle-config .button-panel {
     float: right;
 }
-
 .battle-config .button-panel button {
     margin-left: 12px;
 }
-
 .unit-config .button-panel {
     position: absolute;
     float: none;
     right: 16px;
     top: 10px;
 }
-
 .image-button {
     display: inline-block;
     width: 40px;
@@ -164,15 +128,12 @@
     border-radius: 6px;
     margin-left: 8px;
 }
-
 .image-button.disabled {
     opacity: 0.4;
 }
-
 div[data-button="add"] {
     background-image: url('images/addIcon.png');
 }
-
 div[data-button="remove"] {
     background-image: url('images/removeIcon.png');
 }

@@ -187,7 +187,7 @@ define([
 
                 this.content.innerHTML = '';
 
-                var battleConfig = new BattleConfigurationMenu(this.socket);
+                var battleConfig = new BattleConfigurationMenu(this.socket, this.gameLogic);
                 battleConfig.on('cancel', this, function ()
                 {
                     this.content.innerHTML = '';

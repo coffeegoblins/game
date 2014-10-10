@@ -1,9 +1,9 @@
-define(['text!./battleConfigurationMenu.html', 'core/src/events', 'core/src/levelLoader', 'renderer/src/renderer', 'menu/menuNavigator', 'core/src/imageCache'],
-    function (Template, Events, LevelLoader, Renderer, MenuNavigator, ImageCache)
+define(['text!./battleConfigurationMenu.html', 'text!./unitTabHeader.html', 'core/src/events', 'core/src/levelLoader', 'renderer/src/renderer', 'menu/menuNavigator', 'core/src/imageCache'],
+    function (Template, UnitTabTemplate, Events, LevelLoader, Renderer, MenuNavigator, ImageCache)
     {
         'use strict';
 
-        function BattleConfigurationMenu(socket)
+        function BattleConfigurationMenu(socket, gameLogic)
         {
             this.levels = {
                 //level1: {minUnits: 4, maxUnits: 4},
@@ -20,6 +20,7 @@ define(['text!./battleConfigurationMenu.html', 'core/src/events', 'core/src/leve
             this.config = battleConfig ? JSON.parse(battleConfig) :
             {};
             this.socket = socket;
+            this.gameLogic = gameLogic;
         }
 
         BattleConfigurationMenu.prototype.show = function (parentElement, levelName)
@@ -27,6 +28,17 @@ define(['text!./battleConfigurationMenu.html', 'core/src/events', 'core/src/leve
             this.parentElement = parentElement;
 
             MenuNavigator.insertTemplate(this.parentElement, Template);
+
+            this.tabHeader = this.parentElement.querySelector('.tab-header');
+
+            for (var unitType in this.gameLogic.unitTypes)
+            {
+                var li = document.createElement('li');
+                li.className = 'tab';
+                li.innerHTML = UnitTabTemplate;
+                li.setAttribute('data-unit', unitType);
+                this.tabHeader.appendChild(li);
+            }
 
             this.levelPreviewImage = this.parentElement.querySelector('#level-preview');
 
@@ -55,7 +67,7 @@ define(['text!./battleConfigurationMenu.html', 'core/src/events', 'core/src/leve
             this.onTurnCountChanged();
             this.populateLevelSelect(levelName);
 
-            this.selectTab(this.parentElement.querySelector('.tab[data-unit="shield"]'));
+            this.selectTab(this.parentElement.querySelector('.tab[data-unit="Shield"]'));
             return this;
         };
 
@@ -111,14 +123,14 @@ define(['text!./battleConfigurationMenu.html', 'core/src/events', 'core/src/leve
             {
                 this.config[this.levelName] = {
                     units:
-                    {
-                        shield: 0,
-                        warrior: 0,
-                        archer: 0,
-                        rogue: 0
-                    },
+                    {},
                     unitCount: 0
                 };
+
+                for (var unitType in this.gameLogic.unitTypes)
+                {
+                    this.config[this.levelName].units[unitType] = 0;
+                }
             }
 
             this.unitSlider.min = this.level.minUnits;
