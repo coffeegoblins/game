@@ -225,7 +225,7 @@ input[type="range"]:disabled {
 .action[data-action-name="move"] {
     background-image: url('renderer/content/images/moveIcon.png');
 }
-.action[data-action-name="endTurn"] {
+.action[data-action-name="endturn"] {
     background-image: url('renderer/content/images/endTurnIcon.png');
 }
 .action[data-action-name="confirm"] {
@@ -242,19 +242,19 @@ input[type="range"]:disabled {
     top: 32px;
     left: 64px;
 }
-.action[data-action-name="rangedAttack"] {
+.action[data-action-name="rangedattack"] {
     background-image: url('renderer/content/images/rangeAttackIcon.png');
 }
-.action[data-action-name="overheadAttack"] {
+.action[data-action-name="overheadattack"] {
     background-image: url('renderer/content/images/rangeAttackIcon.png');
 }
-.action[data-action-name="meleeAttack"] {
+.action[data-action-name="meleeattack"] {
     background-image: url('renderer/content/images/rangeAttackIcon.png');
 }
 .action[data-action-name="strike"] {
     background-image: url('renderer/content/images/attackIcon.png');
 }
-.action[data-action-name="shieldBash"] {
+.action[data-action-name="shieldbash"] {
     background-image: url('renderer/content/images/shieldIcon.png');
 }
 .action[data-action-name="defend"] {
@@ -266,10 +266,10 @@ input[type="range"]:disabled {
 .action[data-action-name="overhead"] {
     background-image: url('renderer/content/images/attackIcon.png');
 }
-.action[data-action-name="throwDagger"] {
+.action[data-action-name="throwdagger"] {
     background-image: url('renderer/content/images/attackIcon.png');
 }
-.action[data-action-name="vitalStrike"] {
+.action[data-action-name="vitalstrike"] {
     background-image: url('renderer/content/images/attackIcon.png');
 }
 .blink {

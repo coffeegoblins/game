@@ -115,7 +115,7 @@ define([
                 Renderer.clearRenderablePaths();
                 this.actionPanel.hide();
 
-                if (action.name === 'endTurn')
+                if (action.name === 'endturn')
                 {
                     this.endTurn();
                     return;
@@ -130,7 +130,7 @@ define([
                 else
                 {
                     this.currentAttack = action;
-                    this.availableNodes = this.gameLogic.attacks[action.name].getAttackNodes(this.currentMap, unit);
+                    this.availableNodes = this.gameLogic.attacks[action.name.toLowerCase()].getAttackNodes(this.currentMap, unit);
 
                     Renderer.addRenderablePath('attack', this.availableNodes, false);
                     this.currentMap.on('tileClick', this, this.onAttackTileSelected);
@@ -229,7 +229,7 @@ define([
                     y: y
                 };
 
-                var attackName = this.currentAttack.name;
+                var attackName = this.currentAttack.name.toLowerCase();
 
                 this.selectedNodes = this.gameLogic.attacks[attackName].getAttackNodes(this.currentMap, this.turnManager.activeUnit);
                 var hasTarget = this.gameLogic.hasTarget(this.selectedNodes);
@@ -258,7 +258,7 @@ define([
                 this.actionPanel.hide();
                 this.turnManager.activeUnit.statusPanel.previewAP();
 
-                this.unitActions.attack(this.turnManager.activeUnit, this.selectedNode, this.currentAttack, this.resetActionState.bind(this));
+                this.unitActions.attack(this.turnManager.activeUnit, this.selectedNode, this.currentAttack.name, this.resetActionState.bind(this));
                 this.onLocalUnitAttack(this.turnManager.activeUnit, this.selectedNode, this.currentAttack.name);
             },
 
@@ -319,7 +319,8 @@ define([
             performActions: function (actions)
             {
                 var action = actions.shift();
-                switch (action.type.toLowerCase())
+                var actionType = action.type.toLowerCase();
+                switch (actionType)
                 {
 
                 case "move":
@@ -340,12 +341,6 @@ define([
                         break;
                     }
 
-                case "attack":
-                    {
-                        // TODO
-                        break;
-                    }
-
                 case "endturn":
                     {
                         // Nothing to validate
@@ -362,7 +357,25 @@ define([
                     }
 
                 default:
-                    // TODO Handle out of date error
+                    var attackLogic = this.gameLogic.attacks[actionType];
+                    var attackingUnit = this.turnManager.activeUnit;
+                    var targetUnit = this.currentMap.getTile(action.targetX, action.targetY).unit;
+
+                    attackingUnit.target = targetUnit;
+
+                    var attackNodes = attackLogic.getAttackNodes(this.currentMap, attackingUnit);
+                    for (var j = 0; j < attackNodes.length; ++j)
+                    {
+                        var attackNode = attackNodes[j];
+                        if (attackNode.x === action.targetX && attackNode.y === action.targetY)
+                        {
+                            attackingUnit.direction = this.gameLogic.getDirection(attackingUnit, attackNode);
+                            attackingUnit.ap -= this.gameLogic.getAttackCost(attackingUnit, attackNode, attackLogic.attackCost);
+
+                            // attackLogic.performAttack(attackingUnit, attackNode);
+                            this.unitActions.attack(attackingUnit, attackNode, actionType, this.performActions.bind(this, actions));
+                        }
+                    }
                     return;
 
                 }

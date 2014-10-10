@@ -13,6 +13,7 @@ define(['core/src/imageCache', 'core/src/spriteSheet', 'text!../content/animatio
     function RenderableSoldier(unit, localUsername)
     {
         this.unit = unit;
+        this.previousDirection = directions[this.unit.direction.y + 1][this.unit.direction.x + 1];
         this.localUsername = localUsername;
         this.style = {
             opacity: 1
@@ -112,6 +113,13 @@ define(['core/src/imageCache', 'core/src/spriteSheet', 'text!../content/animatio
         var spriteSheet = this.spriteSheets[this.unit.state];
         if (!spriteSheet.isLoaded())
             return;
+
+        var currentDirection = directions[this.unit.direction.y + 1][this.unit.direction.x + 1];
+        if (this.previousDirection !== currentDirection)
+        {
+            this.previousDirection = currentDirection;
+            this.spriteSheets[this.unit.state].playAnimation(currentDirection);
+        }
 
         var position = camera.tileToScreen(this.unit.x, this.unit.y);
         position.x -= camera.viewportRect.x - camera.halfTileWidth;

@@ -15,7 +15,7 @@ define(['./floatingPanel'], function (FloatingPanel)
                 displayName: 'Move'
             },
             {
-                name: 'endTurn',
+                name: 'endturn',
                 displayName: 'End Turn'
             }
         ];

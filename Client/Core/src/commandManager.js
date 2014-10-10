@@ -36,11 +36,6 @@ define(['renderer/src/renderer', 'core/src/plotManager', 'core/src/soundManager'
             PlotManager.turnManager.activeUnit.setState(state);
         };
 
-        CommandManager.setDirection = function (x, y)
-        {
-            PlotManager.turnManager.activeUnit.setDirection(x, y);
-        };
-
         CommandManager.updateGameState = function (actions)
         {
             PlotManager.onGameStateUpdateReceived(actions);

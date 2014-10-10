@@ -64,7 +64,7 @@ define(['renderer/src/renderer', './scheduler'],
 
                     var deltaX = nextNode.x - currentNode.x;
                     var deltaY = nextNode.y - currentNode.y;
-                    unit.setDirection(deltaX, deltaY);
+                    unit.direction = this.gameLogic.getDirection(currentNode, nextNode);
 
                     var nodeProgressPercentage = (progressPercentage - nextNode.startPercentage) / nextNode.percentageShare;
                     unit.x = currentNode.x + (deltaX * nodeProgressPercentage);
@@ -93,9 +93,9 @@ define(['renderer/src/renderer', './scheduler'],
             });
         };
 
-        UnitActions.prototype.attack = function (unit, targetNode, attack, onAttackComplete)
+        UnitActions.prototype.attack = function (unit, targetNode, attackName, onAttackComplete)
         {
-            var results = this.gameLogic.attacks[attack.name].performAttack(unit, targetNode);
+            var results = this.gameLogic.attacks[attackName].performAttack(unit, targetNode);
 
             unit.setState('attack');
             // TODO SoundManager.playTrack(attack.track);
